@@ -8,7 +8,8 @@ class GpuMappingError(Exception):
 
     def __init__(self, gpu_name: str) -> None:
         self.gpu_name = gpu_name
-        super().__init__(f"GPU '{gpu_name}' not found in database")
+        cleaned = gpu_name.strip() or "<empty>"
+        super().__init__(f"GPU '{cleaned}' not found in database")
 
 
 class GpuMapper:
@@ -21,7 +22,7 @@ class GpuMapper:
     def __init__(self, gpu_repo: IGpuRepository) -> None:
         self._gpu_repo = gpu_repo
 
-    def map(self, gpu_name: str) -> dict:
+    def map(self, gpu_name: str) -> dict[str, object]:
         """Resolve a GPU name to its full specification.
 
         Args:

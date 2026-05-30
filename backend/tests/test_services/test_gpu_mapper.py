@@ -16,7 +16,7 @@ def gpu_mapper(gpu_repo):
 
 
 class TestGpuMapper:
-    def test_map_exact_gpu_name_returns_full_spec(self, gpu_mapper):
+    def test_map_exact_gpu_name_returns_full_spec(self, gpu_mapper) -> None:
         """Exact GPU name should return complete spec dict."""
         result = gpu_mapper.map("NVIDIA GeForce RTX 3060")
         assert result is not None
@@ -26,23 +26,28 @@ class TestGpuMapper:
         assert result["vendor"] == "nvidia"
         assert result["flops_tflops"] is not None
 
-    def test_map_fuzzy_name_finds_closest_match(self, gpu_mapper):
+    def test_map_fuzzy_name_finds_closest_match(self, gpu_mapper) -> None:
         """Partial/fuzzy name should still resolve via find_closest_match."""
         result = gpu_mapper.map("RTX 4090")
         assert result is not None
         assert "4090" in result["name"]
 
-    def test_map_unknown_gpu_raises_error(self, gpu_mapper):
+    def test_map_unknown_gpu_raises_error(self, gpu_mapper) -> None:
         """Completely unknown GPU name should raise GpuMappingError."""
         with pytest.raises(GpuMappingError):
             gpu_mapper.map("FakeGPU XYZ-9999")
 
-    def test_map_empty_string_raises_error(self, gpu_mapper):
+    def test_map_empty_string_raises_error(self, gpu_mapper) -> None:
         """Empty GPU name should raise GpuMappingError."""
         with pytest.raises(GpuMappingError):
             gpu_mapper.map("")
 
-    def test_map_preserves_all_required_fields(self, gpu_mapper):
+    def test_map_whitespace_string_raises_error(self, gpu_mapper) -> None:
+        """Whitespace-only string should raise GpuMappingError."""
+        with pytest.raises(GpuMappingError):
+            gpu_mapper.map("   ")
+
+    def test_map_preserves_all_required_fields(self, gpu_mapper) -> None:
         """Mapped GPU must contain all fields needed by downstream scorers."""
         result = gpu_mapper.map("RTX 3060")
         required_fields = [
