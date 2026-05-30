@@ -30,8 +30,11 @@ class ModelNotFoundError(LLMFitError):
         )
 
 
-class ValidationError(LLMFitError):
-    """Input validation error."""
+class InputValidationError(LLMFitError):
+    """Input validation error — distinct from pydantic.ValidationError.
+
+    Use this when business-rule validation fails (not Pydantic schema validation).
+    """
 
     def __init__(self, message: str) -> None:
         super().__init__(message=message, status_code=422)
