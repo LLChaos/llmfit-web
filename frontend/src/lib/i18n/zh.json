@@ -1,0 +1,51 @@
+{
+  "hero.title": "Can I Run This LLM?",
+  "hero.subtitle": "自动分析你的电脑配置，推荐最适合本地运行的大语言模型",
+  "hero.button": "检测我的电脑",
+  "hero.detecting": "正在检测硬件...",
+  "hero.error": "硬件检测失败，请手动输入配置",
+
+  "hardware.gpu": "显卡",
+  "hardware.vram": "显存",
+  "hardware.ram": "内存",
+  "hardware.cpu": "CPU 线程",
+  "hardware.os": "操作系统",
+  "hardware.tier": "性能等级",
+
+  "recommendation.title": "推荐模型",
+  "recommendation.empty": "未找到合适的模型",
+  "recommendation.runnable": "可流畅运行",
+  "recommendation.not_runnable": "显存不足",
+  "recommendation.sort_by": "排序",
+  "recommendation.sort_total": "综合评分",
+  "recommendation.sort_quality": "质量评分",
+  "recommendation.sort_speed": "速度评分",
+
+  "score.quality": "质量",
+  "score.speed": "速度",
+  "score.compatibility": "适配度",
+  "score.context": "上下文",
+  "score.total": "综合",
+
+  "model.parameters": "参数量",
+  "model.vram_required": "显存需求",
+  "model.context_length": "上下文长度",
+  "model.estimated_speed": "预估速度",
+  "model.download": "下载模型",
+  "model.view_on_hf": "在 HuggingFace 查看",
+  "model.detail_title": "模型详情",
+
+  "upgrade.title": "升级建议",
+  "upgrade.current": "当前",
+  "upgrade.suggested": "建议升级到",
+  "upgrade.vram_gain": "显存增加",
+  "upgrade.speed_boost": "速度提升",
+  "upgrade.unlocks": "解锁模型",
+
+  "common.loading": "加载中...",
+  "common.error": "出错了，请稍后重试",
+  "common.retry": "重试",
+  "common.close": "关闭",
+
+  "footer.text": "LLMFit Web — 本地 LLM 硬件适配推荐平台"
+}

@@ -1,0 +1,51 @@
+{
+  "hero.title": "Can I Run This LLM?",
+  "hero.subtitle": "Automatically analyze your PC and find the best local LLMs to run",
+  "hero.button": "Analyze My PC",
+  "hero.detecting": "Detecting hardware...",
+  "hero.error": "Hardware detection failed, please enter specs manually",
+
+  "hardware.gpu": "GPU",
+  "hardware.vram": "VRAM",
+  "hardware.ram": "RAM",
+  "hardware.cpu": "CPU Threads",
+  "hardware.os": "Operating System",
+  "hardware.tier": "Performance Tier",
+
+  "recommendation.title": "Recommended Models",
+  "recommendation.empty": "No compatible models found",
+  "recommendation.runnable": "Runs Smoothly",
+  "recommendation.not_runnable": "Insufficient VRAM",
+  "recommendation.sort_by": "Sort by",
+  "recommendation.sort_total": "Overall Score",
+  "recommendation.sort_quality": "Quality",
+  "recommendation.sort_speed": "Speed",
+
+  "score.quality": "Quality",
+  "score.speed": "Speed",
+  "score.compatibility": "Compatibility",
+  "score.context": "Context",
+  "score.total": "Overall",
+
+  "model.parameters": "Parameters",
+  "model.vram_required": "VRAM Required",
+  "model.context_length": "Context Length",
+  "model.estimated_speed": "Est. Speed",
+  "model.download": "Download Model",
+  "model.view_on_hf": "View on HuggingFace",
+  "model.detail_title": "Model Details",
+
+  "upgrade.title": "Upgrade Suggestions",
+  "upgrade.current": "Current",
+  "upgrade.suggested": "Consider Upgrading To",
+  "upgrade.vram_gain": "VRAM Gain",
+  "upgrade.speed_boost": "Speed Boost",
+  "upgrade.unlocks": "Unlocks Models",
+
+  "common.loading": "Loading...",
+  "common.error": "Something went wrong, please try again",
+  "common.retry": "Retry",
+  "common.close": "Close",
+
+  "footer.text": "LLMFit Web — Local LLM Hardware Compatibility Platform"
+}
