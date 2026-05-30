@@ -165,11 +165,11 @@ class RecommendationEngine:
             gpu = tier_best[tier]
 
             vram_delta = gpu["vram_gb"] - current_vram  # type: ignore[operator]
-            speed_boost = (
-                (gpu["benchmark_score"] - current_score)  # type: ignore[operator]
-                / current_score  # type: ignore[operator]
-                * 100.0
-            )
+            gpu_score = gpu["benchmark_score"]  # type: ignore[typeddict-item]
+            if current_score > 0:
+                speed_boost = ((gpu_score - current_score) / current_score) * 100.0  # type: ignore[operator]
+            else:
+                speed_boost = 100.0  # type: ignore[operator]
 
             # Find models unlocked by this upgrade
             current_runnable = {

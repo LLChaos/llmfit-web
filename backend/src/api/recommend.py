@@ -4,7 +4,6 @@ import os
 
 from fastapi import APIRouter, HTTPException
 
-from src.core.exceptions import GpuNotFoundError
 from src.repositories.json_gpu_repository import JsonGpuRepository
 from src.repositories.json_model_repository import JsonModelRepository
 from src.schemas.common import ApiResponse
