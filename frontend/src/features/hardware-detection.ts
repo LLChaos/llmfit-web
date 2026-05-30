@@ -22,6 +22,7 @@ export async function detectHardware(): Promise<HardwareInput> {
 
 async function detectGpu(): Promise<string> {
   // Try WebGPU API first
+  // WebGPU types not yet fully in TypeScript DOM lib — use `any` cast as workaround
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gpu = (navigator as any).gpu;
   if (gpu) {
@@ -65,6 +66,8 @@ async function detectGpu(): Promise<string> {
 }
 
 function detectRam(): number {
+  // navigator.deviceMemory is Chrome/Edge only — not in standard TypeScript types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const deviceMemory = (navigator as any).deviceMemory;
   if (typeof deviceMemory === "number" && deviceMemory > 0) {
     return deviceMemory;

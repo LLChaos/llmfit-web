@@ -3,8 +3,10 @@
 import json
 from pathlib import Path
 
+from src.repositories.interfaces import IModelRepository
 
-class JsonModelRepository:
+
+class JsonModelRepository(IModelRepository):
     """Model repository backed by a JSON file."""
 
     def __init__(self, file_path: str | Path) -> None:

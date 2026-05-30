@@ -3,8 +3,10 @@
 import json
 from pathlib import Path
 
+from src.repositories.interfaces import IGpuRepository
 
-class JsonGpuRepository:
+
+class JsonGpuRepository(IGpuRepository):
     """GPU repository backed by a JSON file."""
 
     # Tier hierarchy for upgrade suggestions
