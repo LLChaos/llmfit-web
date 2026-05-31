@@ -3,8 +3,7 @@
 import { useTranslation } from "@/hooks/use-translation";
 import { useHardwareDetection } from "@/hooks/use-hardware-detection";
 import { useHardwareStore } from "@/stores/hardware-store";
-import { Button } from "@/components/ui/button";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 interface HeroSectionProps {
   onDetected?: () => void;
@@ -29,11 +28,6 @@ export function HeroSection({ onDetected }: HeroSectionProps) {
         isDetected ? "min-h-0 py-16" : "min-h-screen"
       }`}
     >
-      {/* Language switcher — top right */}
-      <div className="absolute right-4 top-4">
-        <LanguageSwitcher />
-      </div>
-
       {/* Hero content */}
       <h1
         className={`max-w-3xl font-bold tracking-tight transition-all ${
@@ -51,27 +45,58 @@ export function HeroSection({ onDetected }: HeroSectionProps) {
             {t("hero.subtitle")}
           </p>
 
-          <Button
-            size="lg"
-            className="mt-10 h-14 px-10 text-lg"
-            onClick={handleClick}
-            disabled={isDetecting}
-          >
-            {isDetecting ? t("hero.detecting") : t("hero.button")}
-          </Button>
+          {/* Hero CTA button — gradient + glow + animated ring */}
+          <div className="relative mt-12">
+            {/* Pulsing outer ring to draw attention */}
+            <span
+              className="absolute inset-0 animate-ping rounded-full bg-primary/20 opacity-75"
+              style={{ animationDuration: "3s" }}
+              aria-hidden="true"
+            />
+            <button
+              onClick={handleClick}
+              disabled={isDetecting}
+              className="group relative inline-flex h-16 cursor-pointer items-center gap-3 overflow-hidden rounded-full border-0 bg-gradient-to-r from-primary via-primary to-violet-500 px-10 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/40 focus-visible:ring-4 focus-visible:ring-primary/40 active:scale-95 disabled:pointer-events-none disabled:opacity-60"
+            >
+              {/* Shine overlay on hover */}
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+              {isDetecting ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>{t("hero.detecting")}</span>
+                </>
+              ) : (
+                <>
+                  <span>{t("hero.button")}</span>
+                  <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                </>
+              )}
+            </button>
+          </div>
         </>
       )}
 
       {isDetected && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="mt-4"
-          onClick={handleClick}
-          disabled={isDetecting}
-        >
-          {isDetecting ? t("hero.detecting") : "Re-scan Hardware"}
-        </Button>
+        <div className="relative mt-4">
+          <button
+            onClick={handleClick}
+            disabled={isDetecting}
+            className="group relative inline-flex h-10 cursor-pointer items-center gap-2 overflow-hidden rounded-full border-0 bg-gradient-to-r from-primary via-primary to-violet-500 px-6 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/30 focus-visible:ring-4 focus-visible:ring-primary/40 active:scale-95 disabled:pointer-events-none disabled:opacity-60"
+          >
+            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+            {isDetecting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>{t("hero.detecting")}</span>
+              </>
+            ) : (
+              <>
+                <span>{t("hero.re_scan")}</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </>
+            )}
+          </button>
+        </div>
       )}
     </section>
   );

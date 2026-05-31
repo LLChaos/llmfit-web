@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import type { RecommendedModel } from "@/types/recommendation";
 
-type SortKey = "total" | "quality" | "speed";
+export type SortKey = "total" | "quality" | "speed";
 
 interface RecommendationState {
   /** Sort preference */

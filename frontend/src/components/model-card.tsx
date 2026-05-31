@@ -24,7 +24,7 @@ export function ModelCard({ model, onClick }: ModelCardProps) {
 
   return (
     <Card
-      className="w-full cursor-pointer transition-shadow hover:shadow-md"
+      className="w-full cursor-pointer rounded-lg border border-gray-200 bg-white shadow-md ring-0 transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg dark:border-gray-700 dark:bg-card dark:hover:border-gray-600"
       onClick={() => onClick(model)}
     >
       <CardContent className="flex items-center gap-4 p-4">

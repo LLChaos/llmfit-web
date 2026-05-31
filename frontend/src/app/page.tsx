@@ -7,8 +7,6 @@ import { ResultsSection } from "@/components/results-section";
 import { useRecommendations } from "@/hooks/use-recommendations";
 import { useHardwareStore } from "@/stores/hardware-store";
 
-const queryClient = new QueryClient();
-
 function HomeContent() {
   const [shouldFetch, setShouldFetch] = useState(false);
   const hardwareInput = useHardwareStore((s) => s.input);
@@ -35,6 +33,8 @@ function HomeContent() {
 }
 
 export default function Home() {
+  const [queryClient] = useState(() => new QueryClient());
+
   return (
     <QueryClientProvider client={queryClient}>
       <HomeContent />

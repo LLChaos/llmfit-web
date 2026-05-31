@@ -40,7 +40,7 @@ export const apiClient = {
   recommend: (hardware: HardwareInput) =>
     request<RecommendationResponse>("/recommend", {
       method: "POST",
-      body: JSON.stringify({ hardware }),
+      body: JSON.stringify(hardware),
     }),
 
   /** Get paginated model list. */

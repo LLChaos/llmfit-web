@@ -1,9 +1,11 @@
 "use client";
 
+import { useTranslation } from "@/hooks/use-translation";
 import { HardwareCard } from "@/components/hardware-card";
 import { RecommendationList } from "@/components/recommendation-list";
 import { UpgradeSuggestions } from "@/components/upgrade-suggestions";
 import { ModelDetailModal } from "@/components/model-detail-modal";
+import { Button } from "@/components/ui/button";
 import type { RecommendationResponse } from "@/types/recommendation";
 
 interface ResultsSectionProps {
@@ -19,16 +21,20 @@ export function ResultsSection({
   isError,
   onRetry,
 }: ResultsSectionProps) {
+  const { t } = useTranslation();
+
   if (isError) {
     return (
       <div className="py-16 text-center">
-        <p className="text-lg text-destructive">Error</p>
-        <button
+        <p className="text-lg text-destructive">{t("common.error")}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-4"
           onClick={onRetry}
-          className="mt-4 text-sm text-primary underline"
         >
-          Retry
-        </button>
+          {t("common.retry")}
+        </Button>
       </div>
     );
   }

@@ -7,7 +7,7 @@ import en from "@/lib/i18n/en.json";
 
 const dictionaries: Record<string, Record<string, string>> = { zh, en };
 
-type TranslationKey = keyof typeof zh;
+export type TranslationKey = keyof typeof zh;
 
 export function useTranslation() {
   const locale = useLocaleStore((s) => s.locale);
