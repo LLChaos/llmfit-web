@@ -1,25 +1,45 @@
-"""Model listing endpoints - Phase 3 implementation."""
+"""Model listing endpoints."""
 
-from fastapi import APIRouter
+import os
 
-from src.schemas.common import ApiResponse
+from fastapi import APIRouter, HTTPException
+
+from src.repositories.json_model_repository import JsonModelRepository
+from src.schemas.common import ApiResponse, PaginatedData
+from src.schemas.model import ModelListItem, ModelDetail
 
 router = APIRouter(prefix="/models", tags=["models"])
 
-
-@router.get("")
-async def list_models() -> ApiResponse[dict]:
-    """List all models with pagination.
-
-    Phase 3 will implement full listing with filters.
-    """
-    return ApiResponse.ok({"message": "Model list - coming in Phase 3"})
+_DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+_repo = JsonModelRepository(os.path.join(_DATA_DIR, "mock_models.json"))
 
 
-@router.get("/{model_id}")
-async def get_model(model_id: str) -> ApiResponse[dict]:
-    """Get model detail by ID.
+@router.get("", response_model=ApiResponse[PaginatedData[ModelListItem]])
+async def list_models(
+    page: int = 1,
+    size: int = 20,
+    family: str | None = None,
+) -> ApiResponse[PaginatedData[ModelListItem]]:
+    """List all models with pagination and optional family filter."""
+    result = _repo.get_all(page=page, size=size, family=family)
+    models = [ModelListItem(**m) for m in result["items"]]
+    return ApiResponse.ok(
+        PaginatedData(
+            items=models,
+            total=result["total"],
+            page=result["page"],
+            size=result["size"],
+        )
+    )
 
-    Phase 3 will implement full detail lookup.
-    """
-    return ApiResponse.ok({"message": f"Model detail for {model_id} - coming in Phase 3"})
+
+@router.get("/{model_id}", response_model=ApiResponse[ModelDetail])
+async def get_model(model_id: str) -> ApiResponse[ModelDetail]:
+    """Get model detail by ID."""
+    model = _repo.get_by_id(model_id)
+    if model is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"message": f"Model '{model_id}' not found"},
+        )
+    return ApiResponse.ok(ModelDetail(**model))
