@@ -85,13 +85,20 @@ class RecommendationEngine:
                 model["parameter_count_b"],  # type: ignore[arg-type]
                 model["quantization_bits"],  # type: ignore[arg-type]
             )
-            tps = estimate_tps(
-                num_params=int(model["parameter_count_b"] * 1e9),  # type: ignore[operator]
-                batch_size=1,
-                gpu_flops=gpu["flops_tflops"] * 1e12 * 2.0,  # type: ignore[operator]  # FP32 → FP16
-                gpu_bandwidth_gb_s=gpu["memory_bandwidth_gb_s"],  # type: ignore[arg-type]
-                quantization_bits=model["quantization_bits"],  # type: ignore[arg-type]
-            )
+
+            # TPS requires GPU FLOPS + bandwidth — skip if unavailable
+            gpu_flops = gpu.get("flops_tflops")  # type: ignore[typeddict-item]
+            gpu_bw = gpu.get("memory_bandwidth_gb_s")  # type: ignore[typeddict-item]
+            if gpu_flops is not None and gpu_bw is not None:
+                tps = estimate_tps(
+                    num_params=int(model["parameter_count_b"] * 1e9),  # type: ignore[operator]
+                    batch_size=1,
+                    gpu_flops=gpu_flops * 1e12 * 2.0,  # type: ignore[operator]
+                    gpu_bandwidth_gb_s=gpu_bw,  # type: ignore[arg-type]
+                    quantization_bits=model["quantization_bits"],  # type: ignore[arg-type]
+                )
+            else:
+                tps = 0.0
 
             recommendations.append(
                 RecommendedModel(

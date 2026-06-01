@@ -44,6 +44,7 @@
   "model.hidden_dim": "隐藏维度",
   "model.layers": "层数",
   "model.quality_score": "质量评分",
+  "model.speed_score": "速度评分",
   "model.performance_estimate": "预估性能",
   "model.bit_unit": "位",
   "model.vram_min": "最低",

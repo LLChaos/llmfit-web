@@ -117,10 +117,12 @@ export function RecommendationList({
       </div>
 
       <div className="space-y-3">
-        {sorted.map((model) => (
+        {sorted.map((model, index) => (
           <ModelCard
             key={model.modelId}
             model={model}
+            rank={index + 1}
+            sortBy={sortBy}
             onClick={selectModel}
           />
         ))}

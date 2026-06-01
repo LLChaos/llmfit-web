@@ -3,8 +3,12 @@ import type { HardwareInput } from "@/types/hardware";
 /**
  * Detect hardware from browser APIs.
  *
- * Uses:
- * - navigator.gpu (WebGPU) for GPU name
+ * GPU detection strategy (priority order):
+ * 1. WebGL with powerPreference: "high-performance" — most likely to
+ *    return the dedicated/discrete GPU on dual-GPU systems (Optimus).
+ * 2. WebGPU (navigator.gpu) — fallback; tends to pick integrated GPU.
+ *
+ * Other hardware:
  * - navigator.deviceMemory for RAM (Chrome-only, returns GB)
  * - navigator.hardwareConcurrency for CPU threads
  * - navigator.userAgent for OS detection
@@ -20,14 +24,87 @@ export async function detectHardware(): Promise<HardwareInput> {
   return { gpuName, ramGb, cpuCores, os };
 }
 
+/**
+ * Parse the ANGLE renderer string from WebGL into a clean GPU name.
+ *
+ * WebGL UNMASKED_RENDERER_WEBGL returns strings like:
+ *   "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0)"
+ *   "ANGLE (Intel, Intel(R) UHD Graphics 630 Direct3D11 vs_5_0 ps_5_0)"
+ *   "AMD Radeon RX 7900 XTX"
+ *
+ * We extract the GPU model name from the ANGLE parenthesized format
+ * and strip Direct3D/version suffixes.
+ */
+function parseAngleRenderer(raw: string): string {
+  let cleaned = raw.trim();
+  if (cleaned.startsWith("ANGLE (")) {
+    cleaned = cleaned.slice(7);
+  }
+  if (cleaned.endsWith(")")) {
+    cleaned = cleaned.slice(0, -1);
+  }
+
+  // "Vendor, GPU Name, maybe more" — pick the descriptive segment
+  const parts = cleaned.split(",").map((s) => s.trim());
+  if (parts.length >= 2) {
+    const candidates = parts.filter(
+      (p) => !/^(NVIDIA|AMD|Intel|Apple|Qualcomm|ARM)$/i.test(p),
+    );
+    if (candidates.length > 0) {
+      candidates.sort((a, b) => b.length - a.length);
+      return candidates[0]
+        .replace(/\s*Direct3D.*$/i, "")
+        .replace(/\s*D3D11.*$/i, "")
+        .replace(/\s*vs_\d+_\d+.*$/i, "")
+        .replace(/\s*ps_\d+_\d+.*$/i, "")
+        .replace(/\s*Metal.*$/i, "")
+        .trim();
+    }
+  }
+
+  return cleaned
+    .replace(/\s*Direct3D.*$/i, "")
+    .replace(/\s*D3D11.*$/i, "")
+    .replace(/\s*vs_\d+_\d+.*$/i, "")
+    .replace(/\s*ps_\d+_\d+.*$/i, "")
+    .trim();
+}
+
 async function detectGpu(): Promise<string> {
-  // Try WebGPU API first
-  // WebGPU types not yet fully in TypeScript DOM lib — use `any` cast as workaround
+  // ── Strategy 1: WebGL with high-performance power preference ──
+  // Most reliable way to get the dedicated GPU on dual-GPU laptops.
+  // Reference: powerPreference hint + UNMASKED_RENDERER_WEBGL extension.
+  try {
+    const canvas = document.createElement("canvas");
+    const gl =
+      canvas.getContext("webgl2", { powerPreference: "high-performance" }) ||
+      canvas.getContext("webgl", { powerPreference: "high-performance" });
+    if (gl) {
+      const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+      if (debugInfo) {
+        const rawRenderer = gl.getParameter(
+          debugInfo.UNMASKED_RENDERER_WEBGL,
+        );
+        if (rawRenderer && !isSoftwareRenderer(rawRenderer)) {
+          return parseAngleRenderer(rawRenderer);
+        }
+      }
+    }
+  } catch {
+    // WebGL not available
+  }
+
+  // ── Strategy 2: WebGPU with high-performance hint ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gpu = (navigator as any).gpu;
   if (gpu) {
     try {
-      const adapter = await gpu.requestAdapter();
+      let adapter = await gpu.requestAdapter({
+        powerPreference: "high-performance",
+      });
+      if (!adapter) {
+        adapter = await gpu.requestAdapter();
+      }
       if (adapter) {
         const info = await adapter.requestAdapterInfo();
         if (info.description) {
@@ -40,21 +117,22 @@ async function detectGpu(): Promise<string> {
         }
       }
     } catch {
-      // WebGPU not available or permission denied
+      // WebGPU not available
     }
   }
 
-  // Fallback: try WebGL renderer string
+  // ── Strategy 3: WebGL without powerPreference (last resort) ──
   try {
     const canvas = document.createElement("canvas");
-    const gl =
-      canvas.getContext("webgl2") || canvas.getContext("webgl");
+    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
     if (gl) {
       const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
       if (debugInfo) {
-        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-        if (renderer) {
-          return renderer;
+        const rawRenderer = gl.getParameter(
+          debugInfo.UNMASKED_RENDERER_WEBGL,
+        );
+        if (rawRenderer && !isSoftwareRenderer(rawRenderer)) {
+          return parseAngleRenderer(rawRenderer);
         }
       }
     }
@@ -63,6 +141,11 @@ async function detectGpu(): Promise<string> {
   }
 
   return "Unknown GPU";
+}
+
+/** Software renderers indicate no usable GPU — discard these results. */
+function isSoftwareRenderer(renderer: string): boolean {
+  return /SwiftShader|llvmpipe|softpipe|GDI Generic/i.test(renderer);
 }
 
 function detectRam(): number {

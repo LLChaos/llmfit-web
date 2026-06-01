@@ -12,7 +12,10 @@ class Settings(BaseSettings):
         app_version: Semantic version string.
         debug: Debug mode flag. Defaults to False for safety.
         cors_origins: Comma-separated allowed CORS origins.
-        database_url: PostgreSQL connection string (asyncpg). Required.
+        database_url: Async PostgreSQL connection string (asyncpg).
+        sync_database_url: Sync PostgreSQL connection string (psycopg2).
+            Used by Alembic and sync SQL repositories.
+            When empty, the app falls back to JSON repositories.
     """
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
@@ -22,17 +25,7 @@ class Settings(BaseSettings):
     debug: bool = False
     cors_origins: str = "http://localhost:3000"
     database_url: str = ""
-
-    @field_validator("database_url")
-    @classmethod
-    def database_url_must_not_be_empty(cls, v: str) -> str:
-        """Reject empty database URL to fail fast at startup."""
-        if not v.strip():
-            raise ValueError(
-                "DATABASE_URL is required but was empty. "
-                "Set it in .env or as an environment variable."
-            )
-        return v
+    sync_database_url: str = ""
 
 
 settings = Settings()

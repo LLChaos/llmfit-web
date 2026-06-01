@@ -26,10 +26,28 @@ async function request<T>(
     ...options,
   });
 
-  const json: ApiResult<T> = await res.json();
+  const json = await res.json();
 
-  if (!json.success) {
-    throw new Error(json.error?.message || `API error: ${res.status}`);
+  // Unified error parsing — handles both formats:
+  //   {"success": false, "error": {"message": "..."}}  (project convention)
+  //   {"detail": {"message": "..."}}                   (FastAPI HTTPException)
+  //   {"detail": "..."}                                 (FastAPI string detail)
+  if (json.success === false || (!res.ok && !json.success)) {
+    const message =
+      json.error?.message ||
+      json.detail?.message ||
+      (typeof json.detail === "string" ? json.detail : undefined) ||
+      `API error: ${res.status}`;
+    throw new Error(message);
+  }
+
+  // FastAPI HTTPException returns non-2xx with {"detail": ...}
+  if (!res.ok) {
+    const message =
+      json.detail?.message ||
+      (typeof json.detail === "string" ? json.detail : undefined) ||
+      `API error: ${res.status}`;
+    throw new Error(message);
   }
 
   return json.data;

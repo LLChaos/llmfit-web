@@ -3,18 +3,21 @@
 import { useTranslation } from "@/hooks/use-translation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { type SortKey } from "@/stores/recommendation-store";
 import type { RecommendedModel } from "@/types/recommendation";
 import { CheckCircle, XCircle } from "lucide-react";
 
 interface ModelCardProps {
   model: RecommendedModel;
+  rank: number;
+  sortBy: SortKey;
   onClick: (model: RecommendedModel) => void;
 }
 
-export function ModelCard({ model, onClick }: ModelCardProps) {
+export function ModelCard({ model, rank, sortBy, onClick }: ModelCardProps) {
   const { t } = useTranslation();
 
-  const scorePercent = Math.round(model.scores.total);
+  const scorePercent = Math.round(model.scores[sortBy]);
   const ringColor =
     scorePercent >= 80
       ? "text-green-500"
@@ -30,7 +33,7 @@ export function ModelCard({ model, onClick }: ModelCardProps) {
       <CardContent className="flex items-center gap-4 p-4">
         {/* Rank badge */}
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-          {model.rank}
+          {rank}
         </span>
 
         {/* Model info */}
@@ -84,7 +87,7 @@ export function ModelCard({ model, onClick }: ModelCardProps) {
             </text>
           </svg>
           <span className="text-[10px] text-muted-foreground">
-            {t("score.total")}
+            {sortBy === "quality" ? t("score.quality") : sortBy === "speed" ? t("score.speed") : t("score.total")}
           </span>
         </div>
       </CardContent>

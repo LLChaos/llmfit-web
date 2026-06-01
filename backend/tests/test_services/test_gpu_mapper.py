@@ -32,10 +32,15 @@ class TestGpuMapper:
         assert result is not None
         assert "4090" in result["name"]
 
-    def test_map_unknown_gpu_raises_error(self, gpu_mapper) -> None:
-        """Completely unknown GPU name should raise GpuMappingError."""
-        with pytest.raises(GpuMappingError):
-            gpu_mapper.map("FakeGPU XYZ-9999")
+    def test_map_unknown_gpu_returns_fallback(self, gpu_mapper) -> None:
+        """Completely unknown GPU name should return a conservative fallback."""
+        result = gpu_mapper.map("FakeGPU XYZ-9999")
+        assert result is not None
+        assert result["vendor"] == "unknown"
+        assert result["vram_gb"] == 4.0
+        assert result["tier"] == "entry"
+        assert result["flops_tflops"] is None
+        assert result["memory_bandwidth_gb_s"] is None
 
     def test_map_empty_string_raises_error(self, gpu_mapper) -> None:
         """Empty GPU name should raise GpuMappingError."""

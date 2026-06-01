@@ -72,6 +72,10 @@ export function ModelDetailModal() {
                 label={t("model.quality_score")}
                 value={`${detail.qualityScore}/100`}
               />
+              <DetailRow
+                label={t("model.speed_score")}
+                value={selectedModel ? `${Math.round(selectedModel.scores.speed)}/100` : "—"}
+              />
             </div>
 
             {/* Token animation — full width */}

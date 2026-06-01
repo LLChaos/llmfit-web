@@ -3,7 +3,7 @@
 import pytest
 from src.repositories.json_gpu_repository import JsonGpuRepository
 from src.repositories.json_model_repository import JsonModelRepository
-from src.services.gpu_mapper import GpuMapper, GpuMappingError
+from src.services.gpu_mapper import GpuMapper
 from src.services.recommendation_engine import RecommendationEngine
 from src.schemas.hardware import HardwareInput
 
@@ -120,13 +120,17 @@ class TestRecommendationEngine:
         response = engine.recommend(hw)
         assert len(response.upgrade_suggestions) == 0
 
-    def test_recommend_unknown_gpu_raises_error(self, engine) -> None:
-        """Unknown GPU should raise GpuMappingError."""
+    def test_recommend_unknown_gpu_uses_fallback(self, engine) -> None:
+        """Unknown GPU should use conservative fallback config (entry/4GB)."""
         hw = HardwareInput(
             gpu_name="Nonexistent GPU XYZ",
             ram_gb=16.0,
             cpu_cores=8,
             os="Windows",
         )
-        with pytest.raises(GpuMappingError):
-            engine.recommend(hw)
+        response = engine.recommend(hw)
+        assert response.hardware.gpu_name == "Nonexistent GPU XYZ"
+        assert response.hardware.vram_gb == 4.0
+        assert response.hardware.gpu_tier == "entry"
+        assert len(response.recommendations) >= 0
+        assert all(r.runnable for r in response.recommendations)

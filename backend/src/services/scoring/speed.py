@@ -38,18 +38,24 @@ def score_speed(
         gpu: GPU spec dict with 'flops_tflops', 'memory_bandwidth_gb_s', and 'tier'.
 
     Returns:
-        Speed score 0-100.
+        Speed score 0-100. Returns a conservative estimate (10.0) when GPU
+        performance data is unavailable (e.g. fallback GPU for unknown hardware).
     """
+    gpu_flops_raw = gpu.get("flops_tflops")  # type: ignore[typeddict-item]
+    gpu_bandwidth = gpu.get("memory_bandwidth_gb_s")  # type: ignore[typeddict-item]
+
+    # Cannot compute TPS without GPU performance data — return conservative score
+    if gpu_flops_raw is None or gpu_bandwidth is None:
+        return 10.0
+
     num_params = int(model["parameter_count_b"] * 1e9)  # type: ignore[operator]
     quantization_bits = model["quantization_bits"]  # type: ignore[typeddict-item]
-    gpu_flops = gpu["flops_tflops"] * 1e12 * 2.0  # type: ignore[operator]  # FP32 → FP16
-    gpu_bandwidth = gpu["memory_bandwidth_gb_s"]  # type: ignore[operator]
     gpu_tier = gpu.get("tier", "mid")  # type: ignore[typeddict-item]
 
     tps = estimate_tps(
         num_params=num_params,  # type: ignore[arg-type]
         batch_size=1,
-        gpu_flops=gpu_flops,  # type: ignore[arg-type]
+        gpu_flops=gpu_flops_raw * 1e12 * 2.0,  # type: ignore[arg-type]
         gpu_bandwidth_gb_s=gpu_bandwidth,  # type: ignore[arg-type]
         quantization_bits=quantization_bits,  # type: ignore[arg-type]
     )

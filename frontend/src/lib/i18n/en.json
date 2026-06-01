@@ -44,6 +44,7 @@
   "model.hidden_dim": "Hidden Dim",
   "model.layers": "Layers",
   "model.quality_score": "Quality Score",
+  "model.speed_score": "Speed Score",
   "model.performance_estimate": "Estimated Performance",
   "model.bit_unit": "bit",
   "model.vram_min": "min",
