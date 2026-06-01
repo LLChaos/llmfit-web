@@ -88,8 +88,9 @@ class RecommendationEngine:
             tps = estimate_tps(
                 num_params=int(model["parameter_count_b"] * 1e9),  # type: ignore[operator]
                 batch_size=1,
-                gpu_flops=gpu["flops_tflops"] * 1e12,  # type: ignore[operator]
+                gpu_flops=gpu["flops_tflops"] * 1e12 * 2.0,  # type: ignore[operator]  # FP32 → FP16
                 gpu_bandwidth_gb_s=gpu["memory_bandwidth_gb_s"],  # type: ignore[arg-type]
+                quantization_bits=model["quantization_bits"],  # type: ignore[arg-type]
             )
 
             recommendations.append(
@@ -115,7 +116,11 @@ class RecommendationEngine:
     def _score_models(
         self, models: list[dict[str, object]], gpu: dict[str, object], vram_available: float
     ) -> list[tuple[dict[str, object], dict[str, float]]]:
-        """Score each model across all 4 dimensions."""
+        """Score each model across all 4 dimensions.
+
+        Speed scores use GPU-tier benchmarks (not pool-relative) so that
+        scores reflect absolute usability rather than intra-pool ranking.
+        """
         results: list[tuple[dict[str, object], dict[str, float]]] = []
         for model in models:
             scores: dict[str, float] = {
@@ -148,15 +153,13 @@ class RecommendationEngine:
         tier_best: dict[str, dict[str, object]] = {}
         for gpu in next_tier_gpus:
             tier = gpu["tier"]  # type: ignore[typeddict-item]
-            if (
-                tier not in tier_best
-                or gpu["benchmark_score"]  # type: ignore[typeddict-item]
-                > tier_best[tier]["benchmark_score"]  # type: ignore[typeddict-item]
-            ):
+            gpu_score = gpu.get("benchmark_score") or 0  # type: ignore[typeddict-item]
+            best_score = tier_best.get(tier, {}).get("benchmark_score") or 0  # type: ignore[typeddict-item]
+            if tier not in tier_best or gpu_score > best_score:
                 tier_best[tier] = gpu
 
         current_vram = current_gpu["vram_gb"]  # type: ignore[typeddict-item]
-        current_score = current_gpu["benchmark_score"]  # type: ignore[typeddict-item]
+        current_score = current_gpu.get("benchmark_score") or 0  # type: ignore[typeddict-item]
 
         suggestions: list[UpgradeSuggestion] = []
         for tier in ["mid", "high", "enthusiast"]:
@@ -165,11 +168,11 @@ class RecommendationEngine:
             gpu = tier_best[tier]
 
             vram_delta = gpu["vram_gb"] - current_vram  # type: ignore[operator]
-            gpu_score = gpu["benchmark_score"]  # type: ignore[typeddict-item]
-            if current_score > 0:
+            gpu_score = gpu.get("benchmark_score") or 0  # type: ignore[typeddict-item]
+            if current_score > 0 and gpu_score > 0:
                 speed_boost = ((gpu_score - current_score) / current_score) * 100.0  # type: ignore[operator]
             else:
-                speed_boost = 100.0  # type: ignore[operator]
+                speed_boost = 0.0  # type: ignore[operator]
 
             # Find models unlocked by this upgrade
             current_runnable = {
