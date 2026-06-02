@@ -18,6 +18,10 @@
   "hardware.tier.mid": "Mid-Range",
   "hardware.tier.high": "High-End",
   "hardware.tier.enthusiast": "Enthusiast",
+  "hardware.not_your_gpu": "Not your GPU?",
+  "hardware.search_gpu_placeholder": "Search GPU model...",
+  "hardware.type_to_search": "Type to search your GPU model",
+  "hardware.gpu_detected_none": "No GPU detected",
 
   "recommendation.title": "Recommended Models",
   "recommendation.empty": "No compatible models found",
@@ -62,14 +66,15 @@
   "common.loading": "Loading...",
   "common.error": "Something went wrong, please try again",
   "common.retry": "Retry",
+  "common.close": "Close",
+  "common.searching": "Searching...",
+  "common.no_results": "No results found",
   "animation.play": "Play",
   "animation.replay": "Replay",
   "animation.stop": "Stop",
   "animation.generating": "Generating...",
   "animation.done": "Completed",
   "animation.ready": "Ready",
-
-  "common.close": "Close",
 
   "footer.text": "LLMFit Web — Local LLM Hardware Compatibility Platform"
 }

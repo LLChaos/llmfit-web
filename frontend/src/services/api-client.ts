@@ -78,4 +78,10 @@ export const apiClient = {
 
   /** Get model detail by ID. */
   getModel: (id: string) => request<ModelDetail>(`/models/${id}`),
+
+  /** Search GPUs by name fragment for the manual selector. */
+  searchGpus: (query: string) =>
+    request<Array<{ name: string; vendor: string; vram_gb: number; tier: string }>>(
+      `/gpus/search?q=${encodeURIComponent(query)}&limit=10`,
+    ),
 };

@@ -1,6 +1,6 @@
 """Recommendation endpoint."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from src.api.dependencies import get_gpu_repo, get_model_repo
 from src.repositories.interfaces import IGpuRepository, IModelRepository
@@ -31,7 +31,5 @@ async def recommend(
         result = engine.recommend(hardware)
         return ApiResponse.ok(result)
     except GpuMappingError as exc:
-        raise HTTPException(
-            status_code=404,
-            detail={"message": str(exc)},
-        ) from exc
+        # Return HTTP 200 with error payload per project API convention
+        return ApiResponse.fail(str(exc))

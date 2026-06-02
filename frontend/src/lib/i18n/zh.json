@@ -18,6 +18,10 @@
   "hardware.tier.mid": "中端",
   "hardware.tier.high": "高端",
   "hardware.tier.enthusiast": "旗舰",
+  "hardware.not_your_gpu": "不是你的显卡？",
+  "hardware.search_gpu_placeholder": "搜索显卡型号...",
+  "hardware.type_to_search": "输入显卡型号进行搜索",
+  "hardware.gpu_detected_none": "未检测到显卡",
 
   "recommendation.title": "推荐模型",
   "recommendation.empty": "未找到合适的模型",
@@ -62,14 +66,14 @@
   "common.loading": "加载中...",
   "common.error": "出错了，请稍后重试",
   "common.retry": "重试",
-  "animation.play": "播放",
+  "common.close": "关闭",
+  "common.searching": "搜索中...",
+  "common.no_results": "未找到结果",
   "animation.replay": "重播",
   "animation.stop": "停止",
   "animation.generating": "生成中...",
   "animation.done": "已完成",
   "animation.ready": "就绪",
-
-  "common.close": "关闭",
 
   "footer.text": "LLMFit Web — 本地 LLM 硬件适配推荐平台"
 }
