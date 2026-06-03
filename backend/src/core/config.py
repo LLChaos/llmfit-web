@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     database_url: str = ""
     sync_database_url: str = ""
+    admin_password: str = ""
 
 
 settings = Settings()

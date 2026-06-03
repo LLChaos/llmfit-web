@@ -17,6 +17,7 @@ export interface RecommendedModel {
   estimatedVramGb: number;
   estimatedTokensPerSec: number;
   runnable: boolean;
+  reason: string;
 }
 
 /** Improvement details for upgrade suggestion. */

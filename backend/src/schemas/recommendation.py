@@ -24,6 +24,10 @@ class RecommendedModel(BaseSchema):
     estimated_vram_gb: float
     estimated_tokens_per_sec: float
     runnable: bool
+    reason: str = Field(
+        default="",
+        description="Human-readable recommendation reason key (e.g. 'vram_headroom_high', 'tight_fit')",
+    )
 
 
 class UpgradeImprovement(BaseSchema):

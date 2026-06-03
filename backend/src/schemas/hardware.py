@@ -11,6 +11,7 @@ class HardwareInput(BaseSchema):
     ram_gb: float = Field(..., ge=0, le=1024, description="System RAM in GB")
     cpu_cores: int = Field(..., ge=1, le=512, description="Logical CPU cores")
     os: str = Field(..., min_length=1, max_length=50, description="Operating system")
+    vram_gb: float | None = Field(None, ge=0, le=1024, description="Manual VRAM override (skips GPU→VRAM mapping when set)")
 
 
 class GpuInfo(BaseSchema):

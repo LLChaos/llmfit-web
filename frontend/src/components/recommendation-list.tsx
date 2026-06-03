@@ -3,6 +3,7 @@
 import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
 import { useRecommendationStore, type SortKey } from "@/stores/recommendation-store";
 import { ModelCard } from "@/components/model-card";
+import { ScoringExplanation } from "@/components/scoring-explanation";
 import { cn } from "@/lib/utils";
 import type { RecommendedModel } from "@/types/recommendation";
 
@@ -115,6 +116,9 @@ export function RecommendationList({
           </div>
         </div>
       </div>
+
+      {/* Scoring explanation */}
+      <ScoringExplanation />
 
       <div className="space-y-3">
         {sorted.map((model, index) => (

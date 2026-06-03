@@ -23,6 +23,45 @@ from src.schemas.recommendation import (
 from src.utils.vram import estimate_vram_simple, estimate_tps
 
 
+# ── Recommendation reason generation ──────────────────────────────
+
+
+def _generate_reason(
+    scores: dict[str, float],
+    estimated_vram: float,
+    vram_available: float,
+) -> str:
+    """Generate a human-readable recommendation reason key.
+
+    Returns a reason key string (e.g. "vram_headroom_high") that the
+    frontend maps to localized text.
+
+    Priority: warnings first, then standout dimension scores, then nice-to-haves.
+    """
+    vram_headroom_pct = ((vram_available - estimated_vram) / estimated_vram * 100) if estimated_vram > 0 else 100
+
+    # 1. Warning: tight VRAM fit (always surface this)
+    if vram_headroom_pct < 10:
+        return "vram_tight_fit"
+
+    # 2. Standout dimension scores (highlight what makes this model special)
+    if scores["quality"] >= 80:
+        return "top_quality"
+    if scores["speed"] >= 80:
+        return "excellent_speed"
+    if scores["compatibility"] >= 80:
+        return "perfect_match"
+    if scores["context"] >= 80:
+        return "great_context"
+
+    # 3. Nice-to-have: plenty of VRAM headroom
+    if vram_headroom_pct >= 50:
+        return "vram_headroom_high"
+
+    # 4. Fallback
+    return "balanced_choice"
+
+
 class RecommendationEngine:
     """Core recommendation engine.
 
@@ -57,9 +96,17 @@ class RecommendationEngine:
         """
         # Step 1: Map GPU name to full spec
         gpu = self._gpu_mapper.map(hardware.gpu_name)
-        vram_available = gpu["vram_gb"]
+
+        # Manual VRAM override takes priority over GPU-mapped value
+        if hardware.vram_gb is not None:
+            vram_available = float(hardware.vram_gb)
+        else:
+            vram_available = gpu["vram_gb"]
 
         # Step 2: Build resolved hardware info
+        # When manual VRAM is set, keep the GPU tier consistent:
+        # if user overrode VRAM, tier reflects the mapped GPU tier (not
+        # derived from the manual value — the user chose this GPU).
         hardware_info = HardwareInfo(
             gpu_name=gpu["name"],  # type: ignore[arg-type]
             vram_gb=vram_available,  # type: ignore[arg-type]
@@ -100,6 +147,11 @@ class RecommendationEngine:
             else:
                 tps = 0.0
 
+            reason = _generate_reason(
+                scores_dict,
+                estimated_vram,
+                vram_available,  # type: ignore[arg-type]
+            )
             recommendations.append(
                 RecommendedModel(
                     model_id=model["id"],  # type: ignore[arg-type]
@@ -108,6 +160,7 @@ class RecommendationEngine:
                     estimated_vram_gb=round(estimated_vram, 1),
                     estimated_tokens_per_sec=round(tps, 1),
                     runnable=True,
+                    reason=reason,
                 )
             )
 

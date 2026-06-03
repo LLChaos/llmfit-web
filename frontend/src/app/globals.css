@@ -45,9 +45,180 @@
   * {
     border-color: var(--border);
   }
-  body {
+
+  html {
+    /* Must match body so mask-image fade never reveals white browser default */
+    background-color: #fbfbf5;
+  }
+
+  .dark html {
     background-color: var(--background);
+  }
+
+  body {
+    background-color: #fbfbf5;
     color: var(--foreground);
     font-family: var(--font-sans);
+    /* Fading grid — grid lines fade toward edges */
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(
+      ellipse 80% 60% at 50% 40%,
+      black 35%,
+      transparent 75%
+    );
+    mask-image: radial-gradient(
+      ellipse 80% 60% at 50% 40%,
+      black 35%,
+      transparent 75%
+    );
+  }
+
+  .dark body {
+    background-color: var(--background);
+    /* Dark-mode grid — lighter lines, same fade */
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    -webkit-mask-image: radial-gradient(
+      ellipse 80% 60% at 50% 40%,
+      black 35%,
+      transparent 75%
+    );
+    mask-image: radial-gradient(
+      ellipse 80% 60% at 50% 40%,
+      black 35%,
+      transparent 75%
+    );
+  }
+}
+
+/* ── Article / Markdown prose styles ────────────────────────────── */
+
+@layer components {
+  .prose-custom {
+    color: var(--foreground);
+    line-height: 1.75;
+    font-size: 1rem;
+
+    & h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    & h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    & h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    & h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    & p {
+      margin-bottom: 1rem;
+    }
+
+    & a {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    & a:hover {
+      opacity: 0.85;
+    }
+
+    & strong {
+      font-weight: 600;
+    }
+
+    & em {
+      font-style: italic;
+    }
+
+    & code {
+      font-family: var(--font-mono, "Fira Code", "Cascadia Code", monospace);
+      font-size: 0.875em;
+      background: hsl(var(--muted));
+      padding: 0.15em 0.4em;
+      border-radius: 0.25rem;
+    }
+
+    & pre {
+      background: hsl(var(--muted));
+      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+
+      & code {
+        background: none;
+        padding: 0;
+        font-size: 0.8125rem;
+        line-height: 1.7;
+      }
+    }
+
+    & ul, & ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    & ul {
+      list-style-type: disc;
+    }
+
+    & ol {
+      list-style-type: decimal;
+    }
+
+    & li {
+      margin-bottom: 0.25rem;
+    }
+
+    & li > ul, & li > ol {
+      margin-top: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    & blockquote {
+      border-left: 3px solid var(--primary);
+      padding-left: 1rem;
+      margin-bottom: 1rem;
+      color: var(--muted-foreground);
+      font-style: italic;
+    }
+
+    & hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+
+    & img {
+      max-width: 100%;
+      border-radius: 0.5rem;
+      margin: 1.25rem 0;
+    }
   }
 }

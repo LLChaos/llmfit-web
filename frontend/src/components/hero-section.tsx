@@ -3,7 +3,6 @@
 import { useTranslation } from "@/hooks/use-translation";
 import { useHardwareDetection } from "@/hooks/use-hardware-detection";
 import { useHardwareStore } from "@/stores/hardware-store";
-import { GpuSelector } from "@/components/gpu-selector";
 import { TerminalAnimation } from "@/components/terminal-animation";
 import { ArrowRight, Loader2 } from "lucide-react";
 
@@ -12,7 +11,6 @@ export function HeroSection() {
   const { analyze } = useHardwareDetection();
   const status = useHardwareStore((s) => s.status);
   const detectedGpu = useHardwareStore((s) => s.input?.gpuName ?? "");
-  const setManualGpu = useHardwareStore((s) => s.setManualGpu);
 
   const isDetecting = status === "detecting";
   const isDetected = status === "detected";
@@ -105,13 +103,6 @@ export function HeroSection() {
           </span>
         </button>
       </div>
-
-      {/* GPU selector — appears after detection */}
-      {isDetected && detectedGpu && (
-        <div className="mt-4">
-          <GpuSelector detectedGpu={detectedGpu} onChange={setManualGpu} />
-        </div>
-      )}
 
       {/* Terminal animation */}
       <div className="mt-12 mb-24 w-full">

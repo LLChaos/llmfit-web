@@ -12,11 +12,13 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from src.core.database import SyncSessionLocal, database_is_configured
-from src.repositories.interfaces import IGpuRepository, IModelRepository
+from src.repositories.interfaces import IGpuRepository, IModelRepository, INewsRepository
 from src.repositories.json_gpu_repository import JsonGpuRepository
 from src.repositories.json_model_repository import JsonModelRepository
+from src.repositories.json_news_repository import JsonNewsRepository
 from src.repositories.sql_gpu_repository import SqlGpuRepository
 from src.repositories.sql_model_repository import SqlModelRepository
+from src.repositories.sql_news_repository import SqlNewsRepository
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +71,12 @@ def get_gpu_repo(
     if _sql_available and db is not None:
         return SqlGpuRepository(db)
     return JsonGpuRepository(os.path.join(_DATA_DIR, "mock_gpu_specs.json"))
+
+
+def get_news_repo(
+    db: Session | None = Depends(get_db),
+) -> INewsRepository:
+    """Return a news repository (SQL with JSON fallback)."""
+    if _sql_available and db is not None:
+        return SqlNewsRepository(db)
+    return JsonNewsRepository(os.path.join(_DATA_DIR, "news_posts.json"))

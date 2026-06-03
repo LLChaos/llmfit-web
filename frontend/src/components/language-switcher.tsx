@@ -1,16 +1,18 @@
 "use client";
 
 import { useLocaleStore } from "@/stores/locale-store";
+import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
+  const { t } = useTranslation();
   const { locale, setLocale } = useLocaleStore();
   const isZh = locale === "zh";
 
   return (
     <div
       role="radiogroup"
-      aria-label="Switch language"
+      aria-label={t("lang.switch")}
       className="relative flex h-8 rounded-full bg-muted p-0.5"
     >
       {/* Sliding indicator */}
@@ -26,28 +28,28 @@ export function LanguageSwitcher() {
       <button
         role="radio"
         aria-checked={isZh}
-        aria-label="切换到中文"
+        aria-label={t("lang.zh")}
         onClick={() => setLocale("zh")}
         className={cn(
           "relative z-10 flex h-7 w-11 cursor-pointer items-center justify-center rounded-full text-xs font-medium transition-colors duration-200",
           isZh ? "text-foreground" : "text-muted-foreground hover:text-foreground"
         )}
       >
-        中文
+        {t("lang.zh")}
       </button>
 
       {/* EN option */}
       <button
         role="radio"
         aria-checked={!isZh}
-        aria-label="Switch to English"
+        aria-label={t("lang.en")}
         onClick={() => setLocale("en")}
         className={cn(
           "relative z-10 flex h-7 w-11 cursor-pointer items-center justify-center rounded-full text-xs font-medium transition-colors duration-200",
           !isZh ? "text-foreground" : "text-muted-foreground hover:text-foreground"
         )}
       >
-        EN
+        {t("lang.en")}
       </button>
     </div>
   );

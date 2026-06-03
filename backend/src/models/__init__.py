@@ -9,7 +9,7 @@ Conforms to CLAUDE.md database rules:
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Float, Integer, String, UniqueConstraint, func
+from sqlalchemy import DateTime, Float, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -113,3 +113,62 @@ class GpuSpec(Base):
 
     def __repr__(self) -> str:
         return f"<GpuSpec {self.slug}>"
+
+
+class NewsPost(Base):
+    """Database-driven news, guides, and tutorial articles.
+
+    Content is stored as Markdown — rendered on the frontend via SSR.
+    published_at controls visibility: NULL = draft, non-NULL = published.
+    """
+
+    __tablename__ = "news_posts"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, default=uuid.uuid4
+    )
+    slug: Mapped[str] = mapped_column(
+        String(150), unique=True, nullable=False, index=True
+    )
+
+    # --- Content ---
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    summary: Mapped[str] = mapped_column(String(500), nullable=False)
+    body_markdown: Mapped[str] = mapped_column(Text, nullable=False)
+
+    # --- Metadata ---
+    category: Mapped[str] = mapped_column(
+        String(50), nullable=False, index=True, default="guide"
+    )  # "news", "guide", "tutorial", "announcement"
+    tags: Mapped[str] = mapped_column(
+        String(300), nullable=False, default=""
+    )  # comma-separated tag list
+    cover_image_url: Mapped[str] = mapped_column(
+        String(500), nullable=False, default=""
+    )
+
+    # --- Visibility ---
+    published_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )
+    is_published: Mapped[bool] = mapped_column(
+        default=False, nullable=False, index=True
+    )
+
+    # --- Timestamps ---
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_utcnow,
+        onupdate=_utcnow,
+    )
+
+    __table_args__ = (
+        UniqueConstraint("slug", name="uq_news_posts_slug"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<NewsPost {self.slug}>"
