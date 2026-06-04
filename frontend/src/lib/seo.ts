@@ -8,7 +8,7 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const SITE_NAME = "LLMFit Web";
-export const SITE_DEFAULT_TITLE = "LLMFit Web — Can I Run This LLM?";
+export const SITE_DEFAULT_TITLE = "LLMFit Web — Can I Run local LLMs?";
 export const SITE_DEFAULT_DESCRIPTION =
   "Find the best local LLMs for your hardware. Auto-detect GPU, VRAM, and RAM — get personalized model recommendations with performance estimates.";
 
@@ -55,7 +55,7 @@ export function constructMetadata({
  */
 
 export const HOME_META = constructMetadata({
-  title: "Can I Run This LLM?",
+  title: "Can I Run local LLMs?",
   description: SITE_DEFAULT_DESCRIPTION,
   path: "/",
 });

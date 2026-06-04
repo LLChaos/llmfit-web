@@ -1,18 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
 import { FilterBar } from "@/components/filter-bar";
 import { NewsCard } from "@/components/news-card";
 import type { NewsPostListItem } from "@/types/news";
 import type { PaginatedData } from "@/services/api-client";
-
-const CATEGORY_OPTIONS = [
-  { value: "guide", label: "Guides" },
-  { value: "tutorial", label: "Tutorials" },
-  { value: "news", label: "News" },
-  { value: "announcement", label: "Announcements" },
-];
 
 function filterPosts(
   posts: NewsPostListItem[],
@@ -27,17 +22,29 @@ interface NewsPageContentProps {
 }
 
 export function NewsPageContent({ initialData }: NewsPageContentProps) {
+  const { t } = useTranslation();
   const [category, setCategory] = useState<string | null>(null);
 
   const allPosts = initialData.items;
   const filtered = filterPosts(allPosts, category);
+  const catLabel = category
+    ? t(`news_page.category_${category === "announcement" ? "announcements" : category + "s"}` as TranslationKey)
+    : "";
+
+  const CATEGORY_OPTIONS = [
+    { value: "guide", label: t("news_page.category_guides") },
+    { value: "tutorial", label: t("news_page.category_tutorials") },
+    { value: "news", label: t("news_page.category_news") },
+    { value: "announcement", label: t("news_page.category_announcements") },
+  ];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
+      <Breadcrumb segments={[{ label: t("news.title") }]} />
       <PageHeader
-        title="Latest News & Guides"
-        description="Industry updates, site announcements, and step-by-step tutorials for running AI models on your own hardware."
-        badge="News"
+        title={t("news_page.title")}
+        description={t("news_page.description")}
+        badge={t("news_page.badge")}
       />
 
       {/* Category filter */}
@@ -46,14 +53,21 @@ export function NewsPageContent({ initialData }: NewsPageContentProps) {
           options={CATEGORY_OPTIONS}
           selected={category}
           onSelect={setCategory}
-          label="Category"
+          label={t("news_page.category")}
         />
       </div>
 
       {/* Results count */}
       <p className="text-xs text-muted-foreground mb-4">
-        Showing {filtered.length} of {initialData.total} articles
-        {category && ` in "${CATEGORY_OPTIONS.find((o) => o.value === category)?.label}"`}
+        {category
+          ? t("news_page.showing_in")
+              .replace("{filtered}", String(filtered.length))
+              .replace("{total}", String(initialData.total))
+              .replace("{category}", catLabel)
+          : t("news_page.showing")
+              .replace("{filtered}", String(filtered.length))
+              .replace("{total}", String(initialData.total))
+        }
       </p>
 
       {/* Grid */}
@@ -72,10 +86,8 @@ export function NewsPageContent({ initialData }: NewsPageContentProps) {
         </div>
       ) : (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-lg font-medium">No articles found</p>
-          <p className="text-sm mt-1">
-            Try selecting a different category
-          </p>
+          <p className="text-lg font-medium">{t("news_page.no_articles_title")}</p>
+          <p className="text-sm mt-1">{t("news_page.no_articles_hint")}</p>
         </div>
       )}
     </div>

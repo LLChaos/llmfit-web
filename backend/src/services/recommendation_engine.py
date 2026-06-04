@@ -73,8 +73,6 @@ class RecommendationEngine:
         5. Upgrades — suggest GPU upgrades that unlock more models
     """
 
-    TOP_N = 10
-
     def __init__(
         self,
         gpu_repo: IGpuRepository,
@@ -85,11 +83,14 @@ class RecommendationEngine:
         self._model_repo = model_repo
         self._gpu_mapper = gpu_mapper
 
-    def recommend(self, hardware: HardwareInput) -> RecommendationResponse:
+    def recommend(
+        self, hardware: HardwareInput, top_n: int | None = 10
+    ) -> RecommendationResponse:
         """Run full recommendation pipeline.
 
         Args:
             hardware: Browser-detected hardware profile.
+            top_n: Max recommendations to return (None = return all).
 
         Returns:
             Complete recommendation response with ranked models and upgrade tips.
@@ -124,9 +125,10 @@ class RecommendationEngine:
         scored.sort(key=lambda x: x[1]["total"], reverse=True)
 
         # Step 5: Build top N recommendations
+        limit = top_n if top_n is not None else len(scored)
         recommendations = []
         for rank, (model, scores_dict) in enumerate(
-            scored[: self.TOP_N], start=1
+            scored[:limit], start=1
         ):
             estimated_vram = estimate_vram_simple(
                 model["parameter_count_b"],  # type: ignore[arg-type]

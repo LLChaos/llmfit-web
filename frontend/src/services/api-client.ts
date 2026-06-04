@@ -63,11 +63,13 @@ export interface PaginatedData<T> {
 
 export const apiClient = {
   /** Submit hardware profile and get recommendations. */
-  recommend: (hardware: HardwareInput) =>
-    request<RecommendationResponse>("/recommend", {
+  recommend: (hardware: HardwareInput, limit?: number) => {
+    const params = limit !== undefined ? `?limit=${limit}` : "";
+    return request<RecommendationResponse>(`/recommend${params}`, {
       method: "POST",
       body: JSON.stringify(hardware),
-    }),
+    });
+  },
 
   /** Get paginated model list. */
   listModels: (page = 1, size = 20, family?: string) => {

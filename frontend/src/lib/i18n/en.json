@@ -95,6 +95,7 @@
   "nav.gpus": "GPUs",
   "nav.news": "News",
   "nav.tools": "Tool",
+  "nav.more_recommendations": "More Recommendations",
   "nav.blog": "Blog",
   "nav.menu_open": "Open menu",
   "nav.menu_close": "Close menu",
@@ -193,5 +194,10 @@
   "a11y.footer_models": "Model families",
   "a11y.footer_gpus": "GPU vendors",
   "a11y.footer_resources": "Resources",
-  "a11y.skip_to_content": "Skip to content"
+  "a11y.skip_to_content": "Skip to content",
+
+  "breadcrumb.more_recommendations": "More Recommendations",
+  "more_recommendations.title": "More Recommendations",
+  "more_recommendations.subtitle": "Fine-tune your hardware configuration to discover more compatible models",
+  "more_recommendations.score_chart_title": "Top 10 Composite Scores"
 }

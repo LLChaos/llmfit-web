@@ -1,102 +1,87 @@
-import type { Metadata } from "next";
-import { ABOUT_META } from "@/lib/seo";
+"use client";
+
+import { useTranslation } from "@/hooks/use-translation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
 
-export const metadata: Metadata = ABOUT_META;
-
 export default function AboutPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <Breadcrumb segments={[{ label: "About Us" }]} />
+      <Breadcrumb segments={[{ label: t("about.breadcrumb") }]} />
 
       <PageHeader
-        title="About LLMFit Web"
-        description="Our mission is to become the standard reference for local LLM hardware compatibility."
-        badge="About"
+        title={t("about.title")}
+        description={t("about.description")}
+        badge={t("about.badge")}
       />
 
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">Our Mission</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("about.mission_title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            LLMFit Web helps users find the best open-source large language
-            models (LLMs) that can run on their personal hardware. We
-            automatically detect your GPU, VRAM, and system specs, then match
-            them against our curated database of models and GPU specifications
-            to deliver personalized recommendations.
+            {t("about.mission_text")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">How It Works</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("about.how_it_works_title")}</h2>
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
             <li>
-              <strong className="text-foreground">Hardware Detection</strong> —
-              Your browser detects your GPU and system specs using WebGL and
-              browser APIs. All detection happens locally on your device.
+              <strong className="text-foreground">{t("about.step1_title")}</strong>
+              {" — "}{t("about.step1_text")}
             </li>
             <li>
-              <strong className="text-foreground">GPU Mapping</strong> — We
-              resolve your GPU name to a full specification including VRAM,
-              compute performance, and memory bandwidth.
+              <strong className="text-foreground">{t("about.step2_title")}</strong>
+              {" — "}{t("about.step2_text")}
             </li>
             <li>
-              <strong className="text-foreground">Model Filtering</strong> — We
-              filter our model database to find models that fit within your
-              available VRAM.
+              <strong className="text-foreground">{t("about.step3_title")}</strong>
+              {" — "}{t("about.step3_text")}
             </li>
             <li>
-              <strong className="text-foreground">Scoring & Ranking</strong> —
-              Each compatible model is scored across four dimensions: quality
-              (40%), speed (25%), compatibility (20%), and context window
-              (15%).
+              <strong className="text-foreground">{t("about.step4_title")}</strong>
+              {" — "}{t("about.step4_text")}
             </li>
             <li>
-              <strong className="text-foreground">Recommendations</strong> —
-              The top 10 models are presented with estimated performance
-              metrics and upgrade suggestions.
+              <strong className="text-foreground">{t("about.step5_title")}</strong>
+              {" — "}{t("about.step5_text")}
             </li>
           </ol>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">Data Sources</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("about.data_sources_title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Our GPU specifications are sourced from the TechPowerUp GPU
-            database. Model information is collected from HuggingFace, the
-            leading open-source AI model repository. We regularly update our
-            database to include new models and GPUs.
+            {t("about.data_sources_text")}
           </p>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">Our Vision</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("about.vision_title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            We aim to build the definitive &ldquo;Can I Run This LLM?&rdquo;
-            platform — supporting 1000+ models and serving 100,000+ monthly
-            active users. All architecture decisions are made with this scale
-            in mind.
+            {t("about.vision_text")}
           </p>
         </section>
 
         {/* Cross-links */}
         <div className="border-t border-border pt-6 mt-8 flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <span>Also see:</span>
+          <span>{t("about.also_see")}</span>
           <a href="/contact" className="text-primary hover:underline">
-            Contact Us
+            {t("contact.title")}
           </a>
           <span>·</span>
           <a href="/privacy" className="text-primary hover:underline">
-            Privacy Policy
+            {t("privacy.title")}
           </a>
           <span>·</span>
           <a href="/terms" className="text-primary hover:underline">
-            Terms of Service
+            {t("terms.title")}
           </a>
           <span>·</span>
           <a href="/tools/recommend" className="text-primary hover:underline">
-            Try the Hardware Tool
+            {t("about.try_tool")}
           </a>
         </div>
       </div>

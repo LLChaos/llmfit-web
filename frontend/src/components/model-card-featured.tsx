@@ -12,7 +12,7 @@ export function ModelCardFeatured({ model }: ModelCardFeaturedProps) {
   // Compact variant of ModelCard: shows name, family badge, params, VRAM, quality score
   return (
     <Link href={`/models/${model.id}`} className="group block">
-      <Card className="h-full border border-border/60 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+      <Card className="h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40">
         <CardContent className="flex flex-col gap-3 p-5">
           {/* Name + quality badge */}
           <div className="flex items-start justify-between gap-2">

@@ -50,7 +50,9 @@ export function NewsCard({
     <Link
       href={`/news/${slug}`}
       className={cn(
-        "group block rounded-lg border border-border bg-card p-5 transition-all",
+        "group block rounded-lg border border-border/60 bg-card p-5 transition-all",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_3px_8px_rgba(0,0,0,0.06)]",
+        "dark:border-border/40 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2),0_4px_12px_rgba(0,0,0,0.3)]",
         "hover:border-primary/30 hover:shadow-sm",
         className,
       )}

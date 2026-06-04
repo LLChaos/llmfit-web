@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useHardwareStore } from "@/stores/hardware-store";
@@ -17,6 +18,7 @@ import {
   Layers,
   Search,
   X,
+  GpuIcon,
 } from "lucide-react";
 
 const TIER_KEY: Record<string, string> = {
@@ -40,10 +42,12 @@ interface GpuOption {
 
 function GpuSearchDropdown({
   currentGpu,
+  triggerRef,
   onSelect,
   onClose,
 }: {
   currentGpu: string;
+  triggerRef: React.RefObject<HTMLElement | null>;
   onSelect: (gpu: GpuOption) => void;
   onClose: () => void;
 }) {
@@ -51,12 +55,64 @@ function GpuSearchDropdown({
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GpuOption[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  // Portal mounting (SSR safety)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Calculate position from trigger element
+  useEffect(() => {
+    function updatePosition() {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        setPosition({
+          top: rect.bottom + 4,
+          left: rect.left,
+        });
+      }
+    }
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [triggerRef]);
 
   // Auto-focus search input
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    // Small delay to let the portal render first
+    const timer = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(timer);
+  }, [mounted]);
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(e.target as Node)
+      ) {
+        onClose();
+      }
+    }
+    // Small delay to avoid the same click that opened it
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClick);
+    }, 100);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [onClose, triggerRef]);
 
   // Debounced search
   useEffect(() => {
@@ -78,8 +134,14 @@ function GpuSearchDropdown({
     return () => clearTimeout(timer);
   }, [query]);
 
-  return (
-    <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-lg border bg-popover p-2 shadow-lg">
+  if (!mounted) return null;
+
+  const dropdown = (
+    <div
+      ref={dropdownRef}
+      className="fixed z-[9999] w-96 rounded-lg border border-border bg-[hsl(var(--card))] p-2 shadow-2xl"
+      style={{ top: position.top, left: position.left }}
+    >
       {/* Search input */}
       <div className="flex items-center gap-2 rounded-md border bg-background px-3 py-2">
         <Search className="size-4 shrink-0 text-muted-foreground" />
@@ -92,14 +154,14 @@ function GpuSearchDropdown({
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />
         {query && (
-          <button type="button" onClick={() => setQuery("")}>
+          <button type="button" onClick={() => setQuery("")} className="cursor-pointer">
             <X className="size-4 text-muted-foreground" />
           </button>
         )}
       </div>
 
       {/* Results */}
-      <div className="mt-1 max-h-48 overflow-y-auto">
+      <div className="mt-1 max-h-64 overflow-y-auto">
         {isSearching && (
           <p className="px-2 py-4 text-center text-sm text-muted-foreground">
             {t("common.searching")}
@@ -115,7 +177,7 @@ function GpuSearchDropdown({
             key={gpu.name}
             type="button"
             onClick={() => onSelect(gpu)}
-            className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-accent"
+            className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-accent cursor-pointer"
           >
             <span className="font-medium truncate">{gpu.name}</span>
             <span className="ml-2 shrink-0 text-xs text-muted-foreground">
@@ -134,7 +196,7 @@ function GpuSearchDropdown({
             onClick={() => {
               onSelect({ name: currentGpu, vendor: "", vram_gb: 0, tier: "" });
             }}
-            className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent"
+            className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent cursor-pointer"
           >
             <span>
               {t("hardware.not_your_gpu")}{" "}
@@ -152,6 +214,8 @@ function GpuSearchDropdown({
       )}
     </div>
   );
+
+  return createPortal(dropdown, document.body);
 }
 
 // ── Main card ────────────────────────────────────────────────────
@@ -175,22 +239,7 @@ export function HardwareCard({ hardware, isLoading }: HardwareCardProps) {
 
   // GPU search dropdown state
   const [gpuSearchOpen, setGpuSearchOpen] = useState(false);
-  const gpuFieldRef = useRef<HTMLDivElement>(null);
-
-  // Close GPU search on outside click
-  useEffect(() => {
-    if (!gpuSearchOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (
-        gpuFieldRef.current &&
-        !gpuFieldRef.current.contains(e.target as Node)
-      ) {
-        setGpuSearchOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [gpuSearchOpen]);
+  const gpuTriggerRef = useRef<HTMLButtonElement>(null);
 
   const handleGpuSelect = useCallback(
     (gpu: GpuOption) => {
@@ -254,18 +303,15 @@ export function HardwareCard({ hardware, isLoading }: HardwareCardProps) {
       : "—";
 
   return (
-    <Card className={cn("w-full", placeholder && "opacity-50")}>
+    <Card className={cn("w-full !overflow-visible", placeholder && "opacity-50")}>
       <CardHeader>
         <CardTitle className="text-lg">{t("hardware.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {/* ── GPU (editable: search dropdown) ───────────────── */}
-          <div
-            ref={gpuFieldRef}
-            className="relative flex flex-col gap-1 rounded-lg border p-3"
-          >
-            <Monitor className="h-4 w-4 text-muted-foreground" />
+          <div className="flex flex-col gap-1 rounded-lg border p-3">
+            <GpuIcon className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">
               {t("hardware.gpu")}
             </span>
@@ -273,6 +319,7 @@ export function HardwareCard({ hardware, isLoading }: HardwareCardProps) {
               <span className="text-sm text-muted-foreground">—</span>
             ) : (
               <button
+                ref={gpuTriggerRef}
                 type="button"
                 onClick={() => setGpuSearchOpen(!gpuSearchOpen)}
                 className={cn(
@@ -290,6 +337,7 @@ export function HardwareCard({ hardware, isLoading }: HardwareCardProps) {
             {gpuSearchOpen && (
               <GpuSearchDropdown
                 currentGpu={gpuName}
+                triggerRef={gpuTriggerRef}
                 onSelect={handleGpuSelect}
                 onClose={() => setGpuSearchOpen(false)}
               />

@@ -43,8 +43,11 @@ export function GpuCardLink({
     <Link
       href={`/gpus/${encodeURIComponent(id)}`}
       className={cn(
-        "group block rounded-xl border border-border bg-card p-5",
-        "hover:border-primary/30 hover:shadow-sm hover:shadow-primary/5",
+        "group block rounded-xl border border-border/60 bg-card p-5",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.04),0_3px_8px_rgba(0,0,0,0.06)]",
+        "dark:border-border/40 dark:shadow-[0_1px_2px_rgba(0,0,0,0.2),0_4px_12px_rgba(0,0,0,0.3)]",
+        "hover:border-primary/30 hover:shadow-[0_2px_4px_rgba(0,0,0,0.06),0_6px_16px_rgba(0,0,0,0.08)]",
+        "dark:hover:shadow-[0_2px_4px_rgba(0,0,0,0.25),0_6px_18px_rgba(0,0,0,0.35)]",
         "transition-all duration-200",
         className
       )}

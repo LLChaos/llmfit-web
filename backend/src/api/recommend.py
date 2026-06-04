@@ -16,10 +16,15 @@ router = APIRouter(prefix="/recommend", tags=["recommend"])
 @router.post("", response_model=ApiResponse[RecommendationResponse])
 async def recommend(
     hardware: HardwareInput,
+    limit: int = 10,
     gpu_repo: IGpuRepository = Depends(get_gpu_repo),
     model_repo: IModelRepository = Depends(get_model_repo),
 ) -> ApiResponse[RecommendationResponse]:
-    """Submit hardware profile and get ranked model recommendations."""
+    """Submit hardware profile and get ranked model recommendations.
+
+    Query params:
+        limit: Max recommendations to return. Set to 0 for all compatible models.
+    """
     gpu_mapper = GpuMapper(gpu_repo)
     engine = RecommendationEngine(
         gpu_repo=gpu_repo,
@@ -28,7 +33,8 @@ async def recommend(
     )
 
     try:
-        result = engine.recommend(hardware)
+        effective_limit = limit if limit > 0 else None  # 0 = return all
+        result = engine.recommend(hardware, top_n=effective_limit)
         return ApiResponse.ok(result)
     except GpuMappingError as exc:
         # Return HTTP 200 with error payload per project API convention

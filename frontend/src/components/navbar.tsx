@@ -17,7 +17,7 @@ const NAV_LINKS = [
   { href: "/models", i18nKey: "nav.models" as const },
   { href: "/gpus", i18nKey: "nav.gpus" as const },
   { href: "/news", i18nKey: "nav.news" as const },
-  { href: "/tools/recommend", i18nKey: "nav.tools" as const },
+  { href: "/more-recommendations", i18nKey: "nav.more_recommendations" as const },
 ] as const;
 
 export function Navbar() {

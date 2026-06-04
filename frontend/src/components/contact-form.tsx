@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 import { Send, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
@@ -18,30 +19,32 @@ interface FormErrors {
   message?: string;
 }
 
-function validate(data: ContactFormData): FormErrors {
-  const errors: FormErrors = {};
-  if (!data.name.trim()) {
-    errors.name = "Name is required";
-  }
-  if (!data.email.trim()) {
-    errors.email = "Email is required";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    errors.email = "Please enter a valid email address";
-  }
-  if (!data.subject.trim()) {
-    errors.subject = "Subject is required";
-  }
-  if (!data.message.trim()) {
-    errors.message = "Message is required";
-  } else if (data.message.trim().length < 10) {
-    errors.message = "Message must be at least 10 characters";
-  }
-  return errors;
-}
-
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
 
 export function ContactForm() {
+  const { t } = useTranslation();
+
+  function validate(data: ContactFormData): FormErrors {
+    const errors: FormErrors = {};
+    if (!data.name.trim()) {
+      errors.name = t("form.name_required");
+    }
+    if (!data.email.trim()) {
+      errors.email = t("form.email_required");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.email = t("form.email_invalid");
+    }
+    if (!data.subject.trim()) {
+      errors.subject = t("form.subject_required");
+    }
+    if (!data.message.trim()) {
+      errors.message = t("form.message_required");
+    } else if (data.message.trim().length < 10) {
+      errors.message = t("form.message_min_length");
+    }
+    return errors;
+  }
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
@@ -57,7 +60,6 @@ export function ContactForm() {
     value: string
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user types
     if (errors[field]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -69,7 +71,6 @@ export function ContactForm() {
 
   const handleBlur = (field: keyof ContactFormData) => {
     setTouched((prev) => new Set(prev).add(field));
-    // Validate single field on blur
     const fieldErrors = validate(formData);
     if (fieldErrors[field]) {
       setErrors((prev) => ({ ...prev, [field]: fieldErrors[field] }));
@@ -78,11 +79,8 @@ export function ContactForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Mark all fields as touched
     setTouched(new Set(["name", "email", "subject", "message"]));
 
-    // Validate all fields
     const fieldErrors = validate(formData);
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
@@ -92,7 +90,6 @@ export function ContactForm() {
     setStatus("submitting");
 
     try {
-      // Try API first; fall back gracefully
       const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
       const res = await fetch(`${apiUrl}/contact`, {
         method: "POST",
@@ -109,8 +106,6 @@ export function ContactForm() {
         throw new Error("Server returned error");
       }
     } catch {
-      // If API is unavailable, still show success — the user
-      // can also use the displayed email address as fallback.
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
       setTouched(new Set());
@@ -121,24 +116,21 @@ export function ContactForm() {
     return (
       <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/20 p-6 text-center">
         <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 mx-auto mb-3" />
-        <h3 className="font-semibold text-lg">Message Sent!</h3>
+        <h3 className="font-semibold text-lg">{t("form.success")}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Thank you for reaching out. We typically respond within 1-2 business
-          days. If you need immediate assistance, email us directly at{" "}
           <a
             href="mailto:contact@example.com"
             className="text-primary hover:underline"
           >
             contact@example.com
           </a>
-          .
         </p>
         <button
           type="button"
           onClick={() => setStatus("idle")}
           className="mt-4 text-sm text-primary hover:underline"
         >
-          Send another message
+          {t("form.submit")}
         </button>
       </div>
     );
@@ -146,37 +138,14 @@ export function ContactForm() {
 
   const fields: {
     key: keyof ContactFormData;
-    label: string;
+    labelKey: TranslationKey;
     type: string;
-    placeholder: string;
     rows?: number;
   }[] = [
-    {
-      key: "name",
-      label: "Name",
-      type: "text",
-      placeholder: "Your name",
-    },
-    {
-      key: "email",
-      label: "Email",
-      type: "email",
-      placeholder: "you@example.com",
-    },
-    {
-      key: "subject",
-      label: "Subject",
-      type: "text",
-      placeholder: "What is this about?",
-    },
-    {
-      key: "message",
-      label: "Message",
-      type: "textarea",
-      placeholder:
-        "Tell us what you need — feedback, bug report, question, or suggestion...",
-      rows: 5,
-    },
+    { key: "name", labelKey: "form.name" as TranslationKey, type: "text" },
+    { key: "email", labelKey: "form.email" as TranslationKey, type: "email" },
+    { key: "subject", labelKey: "form.subject" as TranslationKey, type: "text" },
+    { key: "message", labelKey: "form.message" as TranslationKey, type: "textarea", rows: 5 },
   ];
 
   return (
@@ -198,13 +167,13 @@ export function ContactForm() {
               htmlFor={`contact-${f.key}`}
               className="block text-sm font-medium mb-1.5"
             >
-              {f.label}
+              {t(f.labelKey)}
             </label>
             {f.type === "textarea" ? (
               <textarea
                 id={`contact-${f.key}`}
                 rows={f.rows}
-                placeholder={f.placeholder}
+                placeholder={t(f.labelKey)}
                 value={formData[f.key]}
                 onChange={(e) => handleChange(f.key, e.target.value)}
                 onBlur={() => handleBlur(f.key)}
@@ -215,7 +184,7 @@ export function ContactForm() {
               <input
                 id={`contact-${f.key}`}
                 type={f.type}
-                placeholder={f.placeholder}
+                placeholder={t(f.labelKey)}
                 value={formData[f.key]}
                 onChange={(e) => handleChange(f.key, e.target.value)}
                 onBlur={() => handleBlur(f.key)}
@@ -247,12 +216,12 @@ export function ContactForm() {
         {status === "submitting" ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Sending...
+            {t("form.sending")}
           </>
         ) : (
           <>
             <Send className="h-4 w-4" />
-            Send Message
+            {t("form.submit")}
           </>
         )}
       </button>

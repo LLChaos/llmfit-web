@@ -1,128 +1,73 @@
-import type { Metadata } from "next";
-import { PRIVACY_META } from "@/lib/seo";
+"use client";
+
+import { useTranslation } from "@/hooks/use-translation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
 
-export const metadata: Metadata = PRIVACY_META;
-
 export default function PrivacyPage() {
+  const { t } = useTranslation();
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <Breadcrumb segments={[{ label: "Privacy Policy" }]} />
+      <Breadcrumb segments={[{ label: t("privacy.breadcrumb") }]} />
 
       <PageHeader
-        title="Privacy Policy"
-        description="Last updated: June 4, 2025"
-        badge="Legal"
+        title={t("privacy.title")}
+        description={t("privacy.description")}
+        badge={t("privacy.badge")}
       />
 
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">1. Overview</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            LLMFit Web (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or
-            &ldquo;us&rdquo;) is committed to protecting your privacy. This
-            policy explains how we handle information when you visit our
-            website and use our hardware detection and model recommendation
-            tools.
-          </p>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s1_title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">{t("privacy.s1_text")}</p>
         </section>
-
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">
-            2. Information We Collect
-          </h2>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s2_title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            <strong>Hardware Detection:</strong> All hardware detection
-            (GPU name, VRAM, RAM, CPU cores, OS) is performed locally in your
-            browser using WebGL and browser APIs. This data is never uploaded
-            to our servers.
+            <strong>{t("privacy.s2_hw_label")}</strong>{" "}{t("privacy.s2_hw_text")}
           </p>
           <p className="text-muted-foreground leading-relaxed mt-2">
-            <strong>Model Recommendations:</strong> When you request model
-            recommendations, your hardware profile is sent to our API server
-            for processing. We do not log or store individual hardware profiles
-            — they are processed in-memory and discarded after the response is
-            generated.
+            <strong>{t("privacy.s2_api_label")}</strong>{" "}{t("privacy.s2_api_text")}
           </p>
           <p className="text-muted-foreground leading-relaxed mt-2">
-            <strong>Usage Data:</strong> We may collect anonymous usage
-            statistics (page views, feature usage) through standard web
-            analytics. This data does not identify individual users.
+            <strong>{t("privacy.s2_usage_label")}</strong>{" "}{t("privacy.s2_usage_text")}
           </p>
         </section>
-
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">3. Cookies</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            We use a single localStorage entry to remember your theme
-            preference (light/dark mode). This is not a tracking cookie and
-            does not contain personal information. We do not use third-party
-            tracking cookies.
-          </p>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s3_title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">{t("privacy.s3_text")}</p>
         </section>
-
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">
-            4. Third-Party Services
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Our website may load model and GPU data from our backend API. We do
-            not share your information with third-party advertising networks or
-            data brokers.
-          </p>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s4_title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">{t("privacy.s4_text")}</p>
         </section>
-
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">
-            5. Data Security
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            All communication between your browser and our servers is encrypted
-            via HTTPS. Our backend services are configured with minimal data
-            retention — hardware profiles are processed transiently and not
-            persisted.
-          </p>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s5_title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">{t("privacy.s5_text")}</p>
         </section>
-
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">6. Your Rights</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Since we do not collect or store personal data, there is no
-            personal data to access, correct, or delete. If you have any
-            concerns about privacy, please contact us.
-          </p>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s6_title")}</h2>
+          <p className="text-muted-foreground leading-relaxed">{t("privacy.s6_text")}</p>
         </section>
-
         <section>
-          <h2 className="text-xl font-semibold mt-8 mb-3">7. Contact</h2>
+          <h2 className="text-xl font-semibold mt-8 mb-3">{t("privacy.s7_title")}</h2>
           <p className="text-muted-foreground leading-relaxed">
-            If you have questions about this Privacy Policy, please contact us
-            at{" "}
-            <a
-              href="mailto:privacy@example.com"
-              className="text-primary hover:underline"
-            >
+            {t("privacy.s7_text")}{" "}
+            <a href="mailto:privacy@example.com" className="text-primary hover:underline">
               privacy@example.com
             </a>
             .
           </p>
         </section>
 
-        {/* Cross-links */}
         <div className="border-t border-border pt-6 mt-8 flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <span>Also see:</span>
-          <a href="/terms" className="text-primary hover:underline">
-            Terms of Service
-          </a>
+          <span>{t("privacy.also_see")}</span>
+          <a href="/terms" className="text-primary hover:underline">{t("terms.title")}</a>
           <span>·</span>
-          <a href="/about" className="text-primary hover:underline">
-            About Us
-          </a>
+          <a href="/about" className="text-primary hover:underline">{t("about.title")}</a>
           <span>·</span>
-          <a href="/contact" className="text-primary hover:underline">
-            Contact Us
-          </a>
+          <a href="/contact" className="text-primary hover:underline">{t("contact.title")}</a>
         </div>
       </div>
     </div>

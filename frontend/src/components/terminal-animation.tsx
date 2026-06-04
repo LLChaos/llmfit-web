@@ -18,8 +18,8 @@ function buildScript(
 ): TerminalLine[] {
   return [
     { text: "> detecting hardware...", style: "prompt" },
-    { text: `  GPU: ${gpu || "Unknown"}`, style: "output" },
-    { text: `  VRAM: ${vram > 0 ? vram + " GB" : "unknown"}`, style: "output" },
+    { text: `  GPU: NVIDIA GeForce RTX 4080`, style: "output" },
+    { text: `  VRAM:  12 GB `, style: "output" },
     { text: "", style: "blank" },
     {
       text: `> scanning model database (${modelCount} models)...`,

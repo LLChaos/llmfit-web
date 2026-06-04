@@ -95,6 +95,7 @@
   "nav.gpus": "GPU 库",
   "nav.news": "最新资讯",
   "nav.tools": "硬件检测",
+  "nav.more_recommendations": "更多推荐",
   "nav.blog": "博客",
   "nav.menu_open": "打开菜单",
   "nav.menu_close": "关闭菜单",
@@ -193,5 +194,10 @@
   "a11y.footer_models": "模型家族",
   "a11y.footer_gpus": "GPU 品牌",
   "a11y.footer_resources": "资源",
-  "a11y.skip_to_content": "跳至主要内容"
+  "a11y.skip_to_content": "跳至主要内容",
+
+  "breadcrumb.more_recommendations": "更多推荐",
+  "more_recommendations.title": "更多推荐",
+  "more_recommendations.subtitle": "自由调整硬件配置，发现更多适合你的本地模型",
+  "more_recommendations.score_chart_title": "Top 10 综合评分"
 }

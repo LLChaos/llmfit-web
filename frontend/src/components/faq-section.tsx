@@ -20,7 +20,7 @@ export function FAQSection({ items, className }: FAQSectionProps) {
   return (
     <section className={className}>
       <h2 className="text-xl font-semibold mb-4">
-        Frequently Asked Questions
+        FAQ.
       </h2>
       <div className="space-y-2">
         {items.map((item, i) => (

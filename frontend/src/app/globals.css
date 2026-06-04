@@ -4,7 +4,7 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
+    --card: 40 20% 98%;
     --card-foreground: 222.2 84% 4.9%;
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
@@ -16,6 +16,8 @@
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
@@ -25,7 +27,7 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 220 30% 12%;
     --card-foreground: 210 40% 98%;
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
@@ -37,6 +39,8 @@
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
@@ -59,40 +63,10 @@
     background-color: #fbfbf5;
     color: var(--foreground);
     font-family: var(--font-sans);
-    /* Fading grid — grid lines fade toward edges */
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-    background-size: 48px 48px;
-    -webkit-mask-image: radial-gradient(
-      ellipse 80% 60% at 50% 40%,
-      black 35%,
-      transparent 75%
-    );
-    mask-image: radial-gradient(
-      ellipse 80% 60% at 50% 40%,
-      black 35%,
-      transparent 75%
-    );
   }
 
   .dark body {
     background-color: var(--background);
-    /* Dark-mode grid — lighter lines, same fade */
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-    -webkit-mask-image: radial-gradient(
-      ellipse 80% 60% at 50% 40%,
-      black 35%,
-      transparent 75%
-    );
-    mask-image: radial-gradient(
-      ellipse 80% 60% at 50% 40%,
-      black 35%,
-      transparent 75%
-    );
   }
 }
 

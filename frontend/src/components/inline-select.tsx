@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,29 +29,119 @@ export function InlineSelect({
   className,
 }: InlineSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  // Portal mounting (SSR safety)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Calculate position from trigger element
+  useEffect(() => {
+    function updatePosition() {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        setPosition({
+          top: rect.bottom + 4,
+          left: rect.left,
+        });
+      }
+    }
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener("resize", updatePosition);
+      window.addEventListener("scroll", updatePosition, true);
+    }
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [isOpen]);
 
   // Close on outside click
   useEffect(() => {
+    if (!isOpen) return;
     function handleClick(e: MouseEvent) {
       if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+    const timer = setTimeout(() => {
+      document.addEventListener("mousedown", handleClick);
+    }, 100);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [isOpen]);
 
   const displayText =
     value !== null ? `${value} ${unit}` : autoLabel;
 
+  const dropdown = isOpen && mounted && (
+    <div
+      ref={dropdownRef}
+      className="fixed z-[9998] min-w-[7rem] rounded-lg border border-border bg-[hsl(var(--card))] p-1 shadow-lg cursor-pointer"
+      style={{ top: position.top, left: position.left }}
+    >
+      {/* Auto / reset option */}
+      <button
+        type="button"
+        onClick={() => {
+          onChange(null);
+          setIsOpen(false);
+        }}
+        className={cn(
+          "flex w-full items-center rounded-md px-3 py-1.5 text-sm cursor-pointer",
+          "hover:bg-accent transition-colors",
+          value === null
+            ? "text-primary font-medium"
+            : "text-muted-foreground",
+        )}
+      >
+        {autoLabel}
+      </button>
+
+      <div className="my-1 border-t border-border/60" />
+
+      {/* Numeric options */}
+      <div className="max-h-48 overflow-y-auto">
+        {options.map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => {
+              onChange(opt);
+              setIsOpen(false);
+            }}
+            className={cn(
+              "flex w-full items-center rounded-md px-3 py-1.5 text-sm cursor-pointer",
+              "hover:bg-accent transition-colors",
+              value === opt
+                ? "text-foreground font-medium bg-accent/50"
+                : "text-foreground",
+            )}
+          >
+            {opt} {unit}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="relative" ref={containerRef}>
+    <>
       {/* Trigger */}
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
@@ -69,53 +160,8 @@ export function InlineSelect({
         />
       </button>
 
-      {/* Dropdown */}
-      {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-1 min-w-[7rem] rounded-lg border bg-popover p-1 shadow-md">
-          {/* Auto / reset option */}
-          <button
-            type="button"
-            onClick={() => {
-              onChange(null);
-              setIsOpen(false);
-            }}
-            className={cn(
-              "flex w-full items-center rounded-md px-3 py-1.5 text-sm",
-              "hover:bg-accent transition-colors",
-              value === null
-                ? "text-primary font-medium"
-                : "text-muted-foreground",
-            )}
-          >
-            {autoLabel}
-          </button>
-
-          <div className="my-1 border-t border-border/60" />
-
-          {/* Numeric options */}
-          <div className="max-h-48 overflow-y-auto">
-            {options.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => {
-                  onChange(opt);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  "flex w-full items-center rounded-md px-3 py-1.5 text-sm",
-                  "hover:bg-accent transition-colors",
-                  value === opt
-                    ? "text-foreground font-medium bg-accent/50"
-                    : "text-foreground",
-                )}
-              >
-                {opt} {unit}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+      {/* Portal-rendered dropdown */}
+      {dropdown && createPortal(dropdown, document.body)}
+    </>
   );
 }

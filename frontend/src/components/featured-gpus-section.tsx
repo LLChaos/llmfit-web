@@ -71,7 +71,7 @@ export function FeaturedGpusSection() {
           <Card
             key={gpu.id || gpu.name}
             className={cn(
-              "group border border-border/60 bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg",
+              "group transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40",
             )}
           >
             <CardContent className="flex flex-col gap-3 p-5">

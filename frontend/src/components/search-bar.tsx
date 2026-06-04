@@ -31,7 +31,7 @@ export function SearchBar({
         <button
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           aria-label="Clear search"
         >
           <X className="h-3.5 w-3.5" />

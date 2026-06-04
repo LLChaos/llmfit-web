@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Rocket, Sparkles } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
 
 /**
@@ -15,9 +15,9 @@ export function FeaturedModelsHeader() {
   return (
     <div className="mb-8 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <Sparkles className="h-5 w-5 text-amber-500" />
+        <Rocket className="h-5 w-5 text-amber-500" />
         <h2 className="text-2xl font-bold tracking-tight">
-          {"🔥 "}{t("home.featured_models")}
+          {"🔥"}{t("home.featured_models")}
         </h2>
         <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
           {t("home.top_n_models")}
