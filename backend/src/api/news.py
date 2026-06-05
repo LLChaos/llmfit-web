@@ -92,7 +92,7 @@ def require_admin(
 @router.get("")
 async def list_news(
     page: int = Query(default=1, ge=1),
-    size: int = Query(default=12, ge=1, le=50),
+    size: int = Query(default=12, ge=1, le=200),
     category: Optional[str] = Query(default=None, description="Filter by category"),
     news_repo: INewsRepository = Depends(get_news_repo),
 ) -> ApiResponse[dict]:

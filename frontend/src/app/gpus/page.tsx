@@ -7,10 +7,10 @@ export const metadata: Metadata = GPUS_META;
 async function fetchGpus() {
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
   try {
-    const res = await fetch(API_BASE + '/gpus?sort_by=benchmark_score&order=desc&size=200', {
+    const res = await fetch(API_BASE + '/gpus?sort_by=benchmark_score&order=desc&size=500', {
       next: { revalidate: 1800 },
     });
-    if (!res.ok) return { items: [], total: 0, page: 1, size: 200 };
+    if (!res.ok) return { items: [], total: 0, page: 1, size: 500 };
     const json = await res.json();
     // Map snake_case API fields to camelCase
     const rawItems = json.data?.items ?? [];
@@ -28,10 +28,10 @@ async function fetchGpus() {
       items,
       total: json.data?.total ?? 0,
       page: json.data?.page ?? 1,
-      size: json.data?.size ?? 200,
+      size: json.data?.size ?? 500,
     };
   } catch {
-    return { items: [], total: 0, page: 1, size: 200 };
+    return { items: [], total: 0, page: 1, size: 500 };
   }
 }
 

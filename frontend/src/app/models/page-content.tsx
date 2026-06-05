@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "@/hooks/use-translation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SearchBar } from "@/components/search-bar";
 import { FilterBar } from "@/components/filter-bar";
 import { ModelCardLink } from "@/components/model-card-link";
 import { PageHeader } from "@/components/page-header";
+import { Pagination } from "@/components/pagination";
 import type { ModelListItem } from "@/types/model";
 import type { PaginatedData } from "@/services/api-client";
+
+const ITEMS_PER_PAGE = 24;
 
 function filterModels(
   models: ModelListItem[],
@@ -56,8 +59,21 @@ export function ModelPageContent({ initialData }: ModelPageContentProps) {
   const [family, setFamily] = useState<string | null>(null);
   const [paramRange, setParamRange] = useState<string | null>(null);
   const [quantBits, setQuantBits] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
-  const filtered = filterModels(initialData.items, search, family, paramRange, quantBits);
+  const filtered = useMemo(
+    () => filterModels(initialData.items, search, family, paramRange, quantBits),
+    [initialData.items, search, family, paramRange, quantBits]
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => { setPage(1); }, [search, family, paramRange, quantBits]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const pagedItems = filtered.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
 
   const familyOptions = [
     { value: "Qwen", label: "Qwen" },
@@ -103,14 +119,14 @@ export function ModelPageContent({ initialData }: ModelPageContentProps) {
 
       {/* Results count */}
       <p className="text-xs text-muted-foreground mb-4">
-        {t("common.showing")} {filtered.length} {t("common.of")} {initialData.total} {t("common.results")}
+        {t("common.showing")} {pagedItems.length > 0 ? (page - 1) * ITEMS_PER_PAGE + 1 : 0}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} {t("common.of")} {filtered.length} {t("common.results")}
         {search && ` — "${search}"`}
       </p>
 
       {/* Grid */}
-      {filtered.length > 0 ? (
+      {pagedItems.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((m) => (
+          {pagedItems.map((m) => (
             <ModelCardLink
               key={m.id}
               id={m.id}
@@ -130,6 +146,14 @@ export function ModelPageContent({ initialData }: ModelPageContentProps) {
           <p className="text-sm mt-1">{t("common.empty_hint")}</p>
         </div>
       )}
+
+      {/* Pagination */}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        className="mt-8"
+      />
     </main>
   );
 }

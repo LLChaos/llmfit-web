@@ -51,7 +51,7 @@ export default function AdminPage() {
       const data = await apiClient.adminListNews(password, 1, 50, true);
       setState({ phase: "list", password, posts: data.items });
     } catch {
-      setLoginError("Login failed. Check your password or try again later.");
+      setLoginError("登录失败，请检查密码或稍后重试。");
     } finally {
       setLoggingIn(false);
     }
@@ -90,18 +90,18 @@ export default function AdminPage() {
       const post = await apiClient.adminGetNews(slug, state.password);
       setState({ phase: "edit", password: state.password, post, isNew: false });
     } catch {
-      alert("Failed to load post for editing.");
+      alert("加载文章失败，请重试。");
     }
   }
 
   async function handleDelete(slug: string, title: string) {
     if (state.phase !== "list") return;
-    if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
+    if (!confirm(`确定删除"${title}"？\n\n此操作不可撤销。`)) return;
     try {
       await apiClient.adminDeleteNews(slug, state.password);
       await refreshList(state.password);
     } catch {
-      alert("Failed to delete post.");
+      alert("删除文章失败，请重试。");
     }
   }
 
@@ -125,15 +125,14 @@ export default function AdminPage() {
       return (
         <div className="mx-auto max-w-md px-4 py-16">
           <div className="rounded-lg border border-border bg-card p-6">
-            <h1 className="text-xl font-semibold">Admin Login</h1>
+            <h1 className="text-xl font-semibold">管理员登录</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Content management dashboard. Enter the admin password to
-              continue.
+              内容管理后台。请输入管理员密码以继续。
             </p>
             <form onSubmit={handleLogin} className="mt-6 space-y-4">
               <div>
                 <label htmlFor="password" className="block text-sm font-medium mb-1">
-                  Admin Password
+                  管理员密码
                 </label>
                 <input
                   type="password"
@@ -141,7 +140,7 @@ export default function AdminPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                  placeholder="Enter admin password"
+                  placeholder="请输入管理员密码"
                   autoFocus
                 />
               </div>
@@ -151,9 +150,9 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={loggingIn || !password.trim()}
-                className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
               >
-                {loggingIn ? "Signing in..." : "Sign In"}
+                {loggingIn ? "登录中..." : "登录"}
               </button>
             </form>
           </div>
@@ -206,23 +205,23 @@ function AdminList({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Content Dashboard</h1>
+          <h1 className="text-2xl font-bold">内容管理</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {posts.length} posts total
+            共 {posts.length} 篇文章
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={onRefresh}
-            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors"
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors cursor-pointer"
           >
-            Refresh
+            刷新
           </button>
           <button
             onClick={onNew}
-            className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
           >
-            + New Post
+            + 新建文章
           </button>
         </div>
       </div>
@@ -232,24 +231,24 @@ function AdminList({
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Title</th>
+              <th className="text-left px-4 py-3 font-medium">标题</th>
               <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">
-                Category
+                分类
               </th>
               <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">
-                Status
+                状态
               </th>
               <th className="text-left px-4 py-3 font-medium hidden md:table-cell">
-                Date
+                日期
               </th>
-              <th className="text-right px-4 py-3 font-medium">Actions</th>
+              <th className="text-right px-4 py-3 font-medium">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {posts.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  No posts yet. Click &ldquo;+ New Post&rdquo; to create one.
+                  暂无文章，点击"+ 新建文章"开始创建。
                 </td>
               </tr>
             )}
@@ -274,7 +273,7 @@ function AdminList({
                         : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                     }`}
                   >
-                    {p.publishedAt ? "Published" : "Draft"}
+                    {p.publishedAt ? "已发布" : "草稿"}
                   </span>
                 </td>
                 <td className="px-4 py-2.5 text-xs text-muted-foreground hidden md:table-cell">
@@ -286,15 +285,15 @@ function AdminList({
                   <div className="flex items-center justify-end gap-1.5">
                     <button
                       onClick={() => onEdit(p.slug)}
-                      className="rounded px-2 py-1 text-xs font-medium hover:bg-accent transition-colors"
+                      className="rounded px-2 py-1 text-xs font-medium hover:bg-accent transition-colors cursor-pointer"
                     >
-                      Edit
+                      编辑
                     </button>
                     <button
                       onClick={() => onDelete(p.slug, p.title)}
-                      className="rounded px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                      className="rounded px-2 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                     >
-                      Del
+                      删除
                     </button>
                   </div>
                 </td>
@@ -349,14 +348,14 @@ function AdminEdit({
     setSaving(true);
 
     if (!form.title.trim() || !form.slug.trim() || !form.bodyMarkdown.trim()) {
-      setError("Title, slug, and body are required.");
+      setError("标题、标识和正文为必填项。");
       setSaving(false);
       return;
     }
 
     // Validate slug format: lowercase, alphanumeric + hyphens
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug)) {
-      setError("Slug must be lowercase alphanumeric with hyphens (e.g. my-guide-post).");
+      setError("标识必须为小写字母、数字和连字符，例如：my-guide-post");
       setSaving(false);
       return;
     }
@@ -369,7 +368,7 @@ function AdminEdit({
       }
       setSaved(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed.");
+      setError(err instanceof Error ? err.message : "保存失败。");
     } finally {
       setSaving(false);
     }
@@ -389,7 +388,7 @@ function AdminEdit({
         setSaved(true);
       } catch {
         setForm((prev) => ({ ...prev, isPublished: !newState }));
-        setError("Failed to toggle publish state.");
+        setError("切换发布状态失败。");
       }
     }
   }
@@ -400,84 +399,84 @@ function AdminEdit({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">
-            {isNew ? "New Post" : `Edit: ${post?.title}`}
+            {isNew ? "新建文章" : `编辑：${post?.title}`}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isNew ? "Create a new article" : `Slug: /${form.slug}`}
+            {isNew ? "创建一篇新文章" : `标识：/${form.slug}`}
           </p>
         </div>
         <button
           onClick={onBack}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors"
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors cursor-pointer"
         >
-          ← Back
+          ← 返回
         </button>
       </div>
 
       <form onSubmit={handleSave} className="space-y-5">
         {/* Slug (disabled for existing posts) */}
         <div>
-          <label className="block text-sm font-medium mb-1">Slug</label>
+          <label className="block text-sm font-medium mb-1">标识（Slug）</label>
           <input
             type="text"
             value={form.slug}
             onChange={(e) => updateField("slug", e.target.value)}
             disabled={!isNew}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50"
-            placeholder="my-article-slug"
+            placeholder="文章标识（英文+连字符）"
           />
         </div>
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium mb-1">Title</label>
+          <label className="block text-sm font-medium mb-1">标题</label>
           <input
             type="text"
             value={form.title}
             onChange={(e) => updateField("title", e.target.value)}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            placeholder="Article title"
+            placeholder="文章标题"
           />
         </div>
 
         {/* Summary */}
         <div>
-          <label className="block text-sm font-medium mb-1">Summary</label>
+          <label className="block text-sm font-medium mb-1">摘要</label>
           <textarea
             value={form.summary}
             onChange={(e) => updateField("summary", e.target.value)}
             rows={2}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-y"
-            placeholder="Brief summary (shown in cards and SEO description)"
+            placeholder="简要摘要，显示在卡片和 SEO 描述中"
           />
         </div>
 
         {/* Category + Tags (side by side on desktop) */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-1">Category</label>
+            <label className="block text-sm font-medium mb-1">分类</label>
             <select
               value={form.category}
               onChange={(e) => updateField("category", e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
+                  {c === "guide" ? "指南" : c === "tutorial" ? "教程" : c === "news" ? "新闻" : c === "announcement" ? "公告" : c}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">
-              Tags (comma-separated)
+              标签（逗号分隔）
             </label>
             <input
               type="text"
               value={form.tags}
               onChange={(e) => updateField("tags", e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-              placeholder="llm, vram, guide"
+              placeholder="大模型, 显存, 指南"
             />
           </div>
         </div>
@@ -485,21 +484,21 @@ function AdminEdit({
         {/* Body (Markdown) */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Body (Markdown)
+            正文（Markdown）
           </label>
           <textarea
             value={form.bodyMarkdown}
             onChange={(e) => updateField("bodyMarkdown", e.target.value)}
             rows={20}
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/40 resize-y"
-            placeholder="Write your article in Markdown..."
+            placeholder="使用 Markdown 撰写文章..."
           />
         </div>
 
         {/* Cover image URL */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            Cover Image URL (optional)
+            封面图片 URL（可选）
           </label>
           <input
             type="text"
@@ -514,7 +513,7 @@ function AdminEdit({
         {error && <p className="text-sm text-destructive">{error}</p>}
         {saved && (
           <p className="text-sm text-green-600 dark:text-green-400">
-            Saved successfully.
+            保存成功。
           </p>
         )}
 
@@ -523,21 +522,21 @@ function AdminEdit({
           <button
             type="submit"
             disabled={saving}
-            className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            {saving ? "Saving..." : saved ? "Save Again" : "Save"}
+            {saving ? "保存中..." : saved ? "再次保存" : "保存"}
           </button>
           {!isNew && (
             <button
               type="button"
               onClick={handleTogglePublish}
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
                 form.isPublished
                   ? "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400"
                   : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400"
               }`}
             >
-              {form.isPublished ? "Unpublish" : "Publish"}
+              {form.isPublished ? "取消发布" : "发布"}
             </button>
           )}
         </div>

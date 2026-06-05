@@ -89,7 +89,7 @@ export function InlineSelect({
   const dropdown = isOpen && mounted && (
     <div
       ref={dropdownRef}
-      className="fixed z-[9998] min-w-[7rem] rounded-lg border border-border bg-[hsl(var(--card))] p-1 shadow-lg cursor-pointer"
+      className="fixed z-[9998] min-w-[7rem] rounded-lg border border-border bg-[hsl(var(--card))] p-1 shadow-lg"
       style={{ top: position.top, left: position.left }}
     >
       {/* Auto / reset option */}

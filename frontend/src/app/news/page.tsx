@@ -7,7 +7,7 @@ export const metadata: Metadata = NEWS_META;
 async function fetchPublishedPosts() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
   try {
-    const res = await fetch(`${apiUrl}/news?page=1&size=24`, {
+    const res = await fetch(`${apiUrl}/news?page=1&size=200`, {
       next: { revalidate: 1800 },
     });
     if (!res.ok) {

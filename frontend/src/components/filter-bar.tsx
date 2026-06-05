@@ -36,9 +36,9 @@ export function FilterBar({
         type="button"
         onClick={() => onSelect(null)}
         className={cn(
-          "px-3 py-1 rounded-full text-xs font-medium transition-colors border cursor-pointer",
+          "px-3 py-1 rounded-full text-xs font-medium transition-all border cursor-pointer",
           selected === null
-            ? "bg-primary text-primary-foreground border-primary"
+            ? "bg-primary text-primary-foreground border-primary font-semibold shadow-sm ring-1 ring-primary/20"
             : "bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
         )}
       >
@@ -50,9 +50,9 @@ export function FilterBar({
           type="button"
           onClick={() => onSelect(selected === opt.value ? null : opt.value)}
           className={cn(
-            "px-3 py-1 rounded-full text-xs font-medium transition-colors border cursor-pointer",
+            "px-3 py-1 rounded-full text-xs font-medium transition-all border cursor-pointer",
             selected === opt.value
-              ? "bg-primary text-primary-foreground border-primary"
+              ? "bg-primary text-primary-foreground border-primary font-semibold shadow-sm ring-1 ring-primary/20"
               : "bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
           )}
         >

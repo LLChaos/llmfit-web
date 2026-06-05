@@ -58,7 +58,7 @@ async def search_gpus(
 @router.get("")
 async def list_gpus(
     page: int = Query(default=1, ge=1),
-    size: int = Query(default=24, ge=1, le=50),
+    size: int = Query(default=24, ge=1, le=500),
     vendor: Optional[str] = Query(default=None, description="Filter by vendor (nvidia/amd/apple/intel)"),
     tier: Optional[str] = Query(default=None, description="Filter by tier (entry/mid/high/enthusiast)"),
     sort_by: Optional[str] = Query(
@@ -86,7 +86,7 @@ async def list_gpus(
         reverse = order == "desc"
         all_gpus.sort(
             key=lambda g: (
-                g.get(sort_by, 0) if isinstance(g.get(sort_by), (int, float)) else str(g.get(sort_by, ""))
+                (g.get(sort_by) or 0) if isinstance(g.get(sort_by), (int, float, type(None))) else str(g.get(sort_by, "") or "")
             ),
             reverse=reverse,
         )
