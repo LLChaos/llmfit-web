@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
 import { apiClient } from "@/services/api-client";
 import type { NewsPostListItem, NewsPostDetail, NewsPostInput } from "@/types/news";
 
@@ -163,7 +163,6 @@ export default function AdminPage() {
       return (
         <AdminList
           posts={state.posts}
-          password={state.password}
           onNew={openNew}
           onEdit={openEdit}
           onDelete={handleDelete}
@@ -187,14 +186,12 @@ export default function AdminPage() {
 
 function AdminList({
   posts,
-  password,
   onNew,
   onEdit,
   onDelete,
   onRefresh,
 }: {
   posts: NewsPostListItem[];
-  password: string;
   onNew: () => void;
   onEdit: (slug: string) => void;
   onDelete: (slug: string, title: string) => void;
@@ -248,7 +245,7 @@ function AdminList({
             {posts.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                  暂无文章，点击"+ 新建文章"开始创建。
+                  暂无文章，点击&ldquo;+ 新建文章&rdquo;开始创建。
                 </td>
               </tr>
             )}

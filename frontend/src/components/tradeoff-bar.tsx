@@ -1,17 +1,7 @@
 "use client";
 
-import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
-
-interface TradeoffBarProps {
-  /** Label shown above the bar cluster */
-  label: string;
-  /** Value 0–100 */
-  value: number;
-  /** Bar color class */
-  color: string;
-  className?: string;
-}
 
 function MiniBar({ value, color }: { value: number; color: string }) {
   return (

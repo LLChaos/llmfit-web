@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Monitor } from "lucide-react";
+import { ArrowRight, Gpu } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
@@ -48,7 +48,7 @@ export function FeaturedGpusSection() {
       {/* Section header */}
       <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Monitor className="h-5 w-5 text-primary" />
+          <Gpu className="h-5 w-5 text-primary" />
           <h2 className="text-2xl font-bold tracking-tight">
             🖥️ {t("home.featured_gpus")}
           </h2>

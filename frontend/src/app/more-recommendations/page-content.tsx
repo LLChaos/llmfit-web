@@ -102,7 +102,7 @@ function MoreRecommendationsContent() {
         />
 
         {/* Upgrade suggestions */}
-        <UpgradeSuggestions suggestions={data?.upgradeSuggestions ?? []} />
+        <UpgradeSuggestions suggestions={data?.upgradeSuggestions ?? []} showMoreLink={false} />
 
         <ModelDetailModal />
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "@/hooks/use-translation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SearchBar } from "@/components/search-bar";
@@ -66,8 +66,11 @@ export function ModelPageContent({ initialData }: ModelPageContentProps) {
     [initialData.items, search, family, paramRange, quantBits]
   );
 
-  // Reset to page 1 when filters change
-  useEffect(() => { setPage(1); }, [search, family, paramRange, quantBits]);
+  // Reset to page 1 when filters change (via onChange callbacks below)
+  const handleSearchChange = (value: string) => { setSearch(value); setPage(1); };
+  const handleFamilyChange = (value: string | null) => { setFamily(value); setPage(1); };
+  const handleParamRangeChange = (value: string | null) => { setParamRange(value); setPage(1); };
+  const handleQuantBitsChange = (value: string | null) => { setQuantBits(value); setPage(1); };
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const pagedItems = filtered.slice(
@@ -109,11 +112,11 @@ export function ModelPageContent({ initialData }: ModelPageContentProps) {
 
       {/* Filters */}
       <div className="space-y-3 mb-8">
-        <SearchBar value={search} onChange={setSearch} placeholder={t("common.search")} />
+        <SearchBar value={search} onChange={handleSearchChange} placeholder={t("common.search")} />
         <div className="flex flex-wrap gap-4">
-          <FilterBar options={familyOptions} selected={family} onSelect={setFamily} label={t("footer.models")} />
-          <FilterBar options={paramOptions} selected={paramRange} onSelect={setParamRange} label={t("model.parameters")} />
-          <FilterBar options={quantOptions} selected={quantBits} onSelect={setQuantBits} label={t("model.quantization")} />
+          <FilterBar options={familyOptions} selected={family} onSelect={handleFamilyChange} label={t("footer.models")} />
+          <FilterBar options={paramOptions} selected={paramRange} onSelect={handleParamRangeChange} label={t("model.parameters")} />
+          <FilterBar options={quantOptions} selected={quantBits} onSelect={handleQuantBitsChange} label={t("model.quantization")} />
         </div>
       </div>
 

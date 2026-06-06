@@ -32,9 +32,6 @@ interface GpuData {
   compatibleModels?: Array<{ name: string; recommendedVramGb: number; qualityScore: number }>;
 }
 
-function L(zh: string, en: string, locale: Locale): string {
-  return locale === "zh" ? zh : en;
-}
 
 // ── Model content generators ──
 

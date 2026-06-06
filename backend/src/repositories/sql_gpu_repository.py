@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.models import GpuSpec
 from src.repositories.interfaces import IGpuRepository
+from src.utils.gpu_name import token_overlap_score
 
 
 class SqlGpuRepository(IGpuRepository):
@@ -60,7 +61,29 @@ class SqlGpuRepository(IGpuRepository):
                 best_score = score
                 best = gpu
 
-        return self._to_dict(best) if best else None
+        if best:
+            return self._to_dict(best)
+
+        # Step 3: token-overlap match — load all GPUs and score by
+        # significant tokens (model number + GPU family).  This
+        # catches cases where substring matching fails because of
+        # synonym differences (e.g. "Mobile" vs "Laptop GPU").
+        all_rows = self._session.execute(
+            select(GpuSpec)
+        ).scalars().all()
+
+        best_token: GpuSpec | None = None
+        best_token_score = 0.0
+        for gpu in all_rows:
+            score = token_overlap_score(name_lower, gpu.name)
+            if score > best_token_score:
+                best_token_score = score
+                best_token = gpu
+
+        if best_token and best_token_score >= 0.5:
+            return self._to_dict(best_token)
+
+        return None
 
     def get_by_tier(self, tier: str) -> list[dict]:
         rows = self._session.execute(

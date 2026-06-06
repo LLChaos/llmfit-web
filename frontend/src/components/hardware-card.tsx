@@ -10,7 +10,6 @@ import { apiClient } from "@/services/api-client";
 import { cn } from "@/lib/utils";
 import type { HardwareInfo } from "@/types/hardware";
 import {
-  Monitor,
   Cpu,
   HardDrive,
   Microchip,
@@ -62,7 +61,7 @@ function GpuSearchDropdown({
 
   // Portal mounting (SSR safety)
   useEffect(() => {
-    setMounted(true);
+    setMounted(true); // eslint-disable-line react-hooks/set-state-in-effect -- intentional mount detection, fires once
   }, []);
 
   // Calculate position from trigger element
@@ -116,10 +115,7 @@ function GpuSearchDropdown({
 
   // Debounced search
   useEffect(() => {
-    if (query.length < 1) {
-      setResults([]);
-      return;
-    }
+    if (query.length < 1) return;
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
@@ -149,7 +145,11 @@ function GpuSearchDropdown({
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQuery(val);
+            if (!val.trim()) setResults([]);
+          }}
           placeholder={t("hardware.search_gpu_placeholder")}
           className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />
@@ -280,7 +280,7 @@ export function HardwareCard({ hardware, isLoading }: HardwareCardProps) {
           <div className="h-6 w-48 rounded bg-muted" />
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-16 rounded bg-muted" />
             ))}
@@ -308,7 +308,7 @@ export function HardwareCard({ hardware, isLoading }: HardwareCardProps) {
         <CardTitle className="text-lg">{t("hardware.title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4">
           {/* ── GPU (editable: search dropdown) ───────────────── */}
           <div className="flex flex-col gap-1 rounded-lg border p-3">
             <GpuIcon className="h-4 w-4 text-muted-foreground" />

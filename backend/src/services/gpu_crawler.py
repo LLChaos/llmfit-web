@@ -116,11 +116,13 @@ def _is_consumer_gpu(spec) -> bool:
     if vram > 48:
         return False
 
-    # Exclude known workstation/server lines
+    # Exclude known workstation/server lines.
+    # NOTE: "max-q" is intentionally NOT excluded — Max-Q GPUs are
+    # consumer TDP variants with distinct specs (VRAM, TFLOPs) that
+    # are relevant for laptop LLM inference recommendations.
     _exclude = (
         "quadro", "tesla", "grid", "firepro",
         "radeon pro", "instinct", "server", "data center",
-        "max-q",  # mobile workstation variants
     )
     if any(x in name_lower for x in _exclude):
         return False

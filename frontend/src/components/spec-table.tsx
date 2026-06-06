@@ -11,13 +11,15 @@ export interface SpecRow {
 
 interface SpecTableProps {
   rows: SpecRow[];
+  /** Section title. Defaults to "Specifications" for backward compatibility. */
+  title?: string;
   className?: string;
 }
 
-export function SpecTable({ rows, className }: SpecTableProps) {
+export function SpecTable({ rows, title = "Specifications", className }: SpecTableProps) {
   return (
     <section className={className}>
-      <h2 className="text-xl font-semibold mb-4">Specifications</h2>
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
       <div className="rounded-lg border border-border overflow-hidden">
         <table className="w-full">
           <tbody>

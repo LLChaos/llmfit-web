@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
+import { useState, useMemo } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SearchBar } from "@/components/search-bar";
 import { FilterBar } from "@/components/filter-bar";
@@ -49,8 +49,10 @@ export function GpuPageContent({ initialData }: GpuPageContentProps) {
     [initialData.items, search, vendor, tier]
   );
 
-  // Reset to page 1 when filters change
-  useEffect(() => { setPage(1); }, [search, vendor, tier]);
+  // Reset to page 1 when filters change (via onChange callbacks below)
+  const handleSearchChange = (value: string) => { setSearch(value); setPage(1); };
+  const handleVendorChange = (value: string | null) => { setVendor(value); setPage(1); };
+  const handleTierChange = (value: string | null) => { setTier(value); setPage(1); };
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const pagedItems = filtered.slice(
@@ -82,10 +84,10 @@ export function GpuPageContent({ initialData }: GpuPageContentProps) {
 
       {/* Filters */}
       <div className="space-y-3 mb-8">
-        <SearchBar value={search} onChange={setSearch} placeholder={t("common.search")} />
+        <SearchBar value={search} onChange={handleSearchChange} placeholder={t("common.search")} />
         <div className="flex flex-wrap gap-4">
-          <FilterBar options={vendorOptions} selected={vendor} onSelect={setVendor} label={t("footer.gpus")} />
-          <FilterBar options={tierOptions} selected={tier} onSelect={setTier} label={t("common.tier")} />
+          <FilterBar options={vendorOptions} selected={vendor} onSelect={handleVendorChange} label={t("footer.gpus")} />
+          <FilterBar options={tierOptions} selected={tier} onSelect={handleTierChange} label={t("common.tier")} />
         </div>
       </div>
 

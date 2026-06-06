@@ -1,11 +1,21 @@
 "use client";
 
+import { useCallback } from "react";
+import Link from "next/link";
 import { useTranslation } from "@/hooks/use-translation";
+import { useHardwareDetection } from "@/hooks/use-hardware-detection";
 import { ArrowRight, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function HomeCtaSection() {
   const { t } = useTranslation();
+  const { analyze } = useHardwareDetection();
+
+  const handleDetect = useCallback(async () => {
+    // Scroll to top so the hero / results area is visible
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    await analyze();
+  }, [analyze]);
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-20 text-center">
@@ -22,8 +32,8 @@ export function HomeCtaSection() {
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Button
             size="lg"
-            nativeButton={false}
-            render={<a href="#detect" />}
+            onClick={handleDetect}
+            className="cursor-pointer"
           >
             {t("home.cta_detect")}
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -32,7 +42,8 @@ export function HomeCtaSection() {
             variant="outline"
             size="lg"
             nativeButton={false}
-            render={<a href="/models" />}
+            render={<Link href="/models" />}
+            className="cursor-pointer"
           >
             {t("home.cta_browse")}
             <ArrowRight className="ml-2 h-4 w-4" />

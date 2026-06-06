@@ -203,7 +203,7 @@ class RecommendationEngine:
         """Generate upgrade suggestions based on next-tier GPUs.
 
         For each tier above current, picks the best GPU (by benchmark_score).
-        Limits to top 3 upgrade paths.
+        Limits to top 2 upgrade paths.
         """
         next_tier_gpus = self._gpu_repo.get_next_tier_gpus(
             current_gpu["tier"]  # type: ignore[arg-type]
@@ -261,6 +261,6 @@ class RecommendationEngine:
                 )
             )
 
-        # Return top 3 sorted by VRAM delta (smallest upgrade first)
+        # Return top 2 sorted by VRAM delta (smallest upgrade first)
         suggestions.sort(key=lambda s: s.improvement.vram_delta_gb)
-        return suggestions[:3]
+        return suggestions[:2]

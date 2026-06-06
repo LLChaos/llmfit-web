@@ -13,12 +13,99 @@ import type { HardwareInput } from "@/types/hardware";
  * - navigator.userAgent for OS detection
  */
 export async function detectHardware(): Promise<HardwareInput> {
-  const gpuName = detectGpu();
+  let gpuName = detectGpu();
   const ramGb = detectRam();
   const cpuCores = navigator.hardwareConcurrency || 1;
   const os = detectOs();
 
+  // Laptop GPU detection: many NVIDIA drivers omit "Laptop GPU" from
+  // the WebGL renderer string.  When the browser runs on a laptop
+  // (detected via Battery API or touch+form-factor heuristics) and
+  // the GPU name lacks mobile markers, append "Laptop GPU" so the
+  // backend can normalize it to the dbgpu "Mobile" entry (e.g.
+  // "GeForce RTX 4080 Mobile" with 12 GB instead of the desktop
+  // 16 GB variant).
+  const laptop = await isLaptop();
+  const hasMarker = hasLaptopMarker(gpuName);
+  const isNvidia = isDiscreteNvidiaGpu(gpuName);
+
+  if (laptop && !hasMarker && isNvidia) {
+    console.log(
+      "[LLMFit] Laptop detected — appending 'Laptop GPU' to:",
+      gpuName,
+    );
+    gpuName = gpuName + " Laptop GPU";
+  } else {
+    console.log(
+      "[LLMFit] GPU marker skip:",
+      { laptop, hasMarker, isNvidia, gpuName },
+    );
+  }
+
   return { gpuName, ramGb, cpuCores, os };
+}
+
+/**
+ * Heuristic: does this GPU name look like a discrete NVIDIA GPU
+ * that might have a distinct mobile (lower-VRAM) variant?
+ *
+ * Integrated GPUs (Intel UHD/Iris, AMD Radeon iGPU) and Apple
+ * Silicon don't have separate mobile entries, so we skip the
+ * marker to avoid false matches.
+ */
+function isDiscreteNvidiaGpu(name: string): boolean {
+  return /\b(?:NVIDIA\s+)?(?:GeForce\s+)?(?:RTX|GTX)\s+\d+/i.test(name);
+}
+
+/** Check whether the GPU name already includes a laptop/mobile marker. */
+function hasLaptopMarker(name: string): boolean {
+  return /\b(?:Laptop|Notebook|Mobile|Max-Q)\b/i.test(name);
+}
+
+/**
+ * Detect whether the current device is likely a laptop.
+ *
+ * Strategy (ordered by reliability):
+ *   1. Battery API — desktops never have batteries.
+ *   2. Touch screen + small viewport on Windows — common 2-in-1 / laptop pattern.
+ */
+async function isLaptop(): Promise<boolean> {
+  // Signal 1: Battery API — desktops never have batteries.
+  // Available in Chromium browsers (Chrome, Edge, Opera).
+  try {
+    if ("getBattery" in navigator) {
+      const battery = await (
+        navigator as Navigator & {
+          getBattery(): Promise<{ charging: boolean }>;
+        }
+      ).getBattery();
+      if (battery) return true;
+    }
+  } catch {
+    // Battery API unavailable or permission denied
+  }
+
+  // Signal 2: User-Agent Client Hints (Chrome 90+, Edge 90+).
+  try {
+    const uaData = (
+      navigator as Navigator & {
+        userAgentData?: { mobile: boolean };
+      }
+    ).userAgentData;
+    if (uaData?.mobile) return true;
+  } catch {
+    // userAgentData not available
+  }
+
+  // Signal 3: Touch screen on Windows (rare on desktops, common on laptops).
+  if (
+    navigator.maxTouchPoints > 0 &&
+    /Windows/i.test(navigator.userAgent)
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -67,6 +154,7 @@ function stripSuffixes(name: string): string {
     .replace(/\s*Metal.*$/i, "")
     .replace(/\s*Vulkan.*$/i, "")
     .replace(/\s*Unspecified Version.*$/i, "")
+    .replace(/\s*\(0x[0-9A-Fa-f]+\)\s*/i, "")  // PCI device ID e.g. (0x000027A0)
     .trim();
 }
 

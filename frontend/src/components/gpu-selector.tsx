@@ -38,10 +38,7 @@ export function GpuSelector({ detectedGpu, onChange }: GpuSelectorProps) {
 
   // Debounced search
   useEffect(() => {
-    if (query.length < 1) {
-      setResults([]);
-      return;
-    }
+    if (query.length < 1) return;
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
@@ -97,7 +94,11 @@ export function GpuSelector({ detectedGpu, onChange }: GpuSelectorProps) {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setQuery(val);
+                if (!val.trim()) setResults([]);
+              }}
               placeholder={t("hardware.search_gpu_placeholder")}
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               autoFocus

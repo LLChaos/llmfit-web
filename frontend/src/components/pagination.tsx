@@ -45,7 +45,7 @@ export function Pagination({
       </button>
 
       {/* Page numbers */}
-      {pages.map((p, i) => {
+      {pages.map((p) => {
         if (p === "ellipsis-start" || p === "ellipsis-end") {
           return (
             <span

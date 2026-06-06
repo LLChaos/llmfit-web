@@ -36,7 +36,7 @@ export function InlineSelect({
 
   // Portal mounting (SSR safety)
   useEffect(() => {
-    setMounted(true);
+    setMounted(true); // eslint-disable-line react-hooks/set-state-in-effect -- intentional mount detection, fires once
   }, []);
 
   // Calculate position from trigger element

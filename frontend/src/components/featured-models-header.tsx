@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Rocket, Sparkles } from "lucide-react";
+import { ArrowRight, Rocket } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
 
 /**

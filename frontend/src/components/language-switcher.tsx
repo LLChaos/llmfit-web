@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useLocaleStore } from "@/stores/locale-store";
 import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";

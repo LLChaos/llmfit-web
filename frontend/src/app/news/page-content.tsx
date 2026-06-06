@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
@@ -47,8 +47,8 @@ export function NewsPageContent({ initialData }: NewsPageContentProps) {
     [initialData.items, category]
   );
 
-  // Reset to page 1 when category changes
-  useEffect(() => { setPage(1); }, [category]);
+  // Reset to page 1 when category changes (via onChange callback below)
+  const handleCategoryChange = (value: string | null) => { setCategory(value); setPage(1); };
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const pagedItems = filtered.slice(
@@ -79,7 +79,7 @@ export function NewsPageContent({ initialData }: NewsPageContentProps) {
         <FilterBar
           options={CATEGORY_OPTIONS}
           selected={category}
-          onSelect={setCategory}
+          onSelect={handleCategoryChange}
           label={t("news.category.all")}
         />
       </div>

@@ -13,7 +13,7 @@ def gpu_repo(data_dir: Path) -> JsonGpuRepository:
 class TestJsonGpuRepository:
     def test_get_all_returns_all_gpus(self, gpu_repo: JsonGpuRepository) -> None:
         all_gpus = gpu_repo.get_all()
-        assert len(all_gpus) == 29
+        assert len(all_gpus) == 30
         assert all(isinstance(g, dict) for g in all_gpus)
         assert all("name" in g for g in all_gpus)
 
@@ -55,3 +55,20 @@ class TestJsonGpuRepository:
     def test_get_next_tier_gpus_from_enthusiast(self, gpu_repo: JsonGpuRepository) -> None:
         next_tier = gpu_repo.get_next_tier_gpus("enthusiast")
         assert len(next_tier) == 0
+
+    def test_find_closest_match_token_overlap(self, gpu_repo: JsonGpuRepository) -> None:
+        """Token-overlap matching should find GPU when substring fails.
+
+        "RTX 4080 Graphics Card" shares tokens {"rtx","4080"} with
+        "NVIDIA GeForce RTX 4080" but is not a substring of it (nor
+        vice versa), so substring matching fails and token overlap
+        takes over as the third fallback."""
+        gpu = gpu_repo.find_closest_match("RTX 4080 Graphics Card")
+        assert gpu is not None
+        assert "4080" in gpu["name"]
+
+    def test_find_closest_match_token_overlap_no_match(self, gpu_repo: JsonGpuRepository) -> None:
+        """No shared significant tokens → token overlap returns 0.0, so
+        None is returned (below the 0.5 threshold)."""
+        gpu = gpu_repo.find_closest_match("FakeGPU XYZ-9999")
+        assert gpu is None

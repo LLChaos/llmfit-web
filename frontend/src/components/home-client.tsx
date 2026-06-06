@@ -47,13 +47,12 @@ function HomeContent() {
   const { data, isLoading, isError, refetch } =
     useRecommendations(effectiveInput);
 
-  // Reset scroll flag when re-scan starts
-  if (status === "detecting") {
-    wasDetected.current = false;
-  }
-
-  // Auto-scroll to results when detection completes
+  // Reset scroll flag on re-scan, then scroll when detection completes
   useEffect(() => {
+    if (status === "detecting") {
+      wasDetected.current = false;
+      return;
+    }
     if (status === "detected" && !wasDetected.current) {
       wasDetected.current = true;
       const t = setTimeout(() => {

@@ -15,7 +15,7 @@ export function ThemeToggle() {
   // Server always renders a placeholder — client replaces it with Sun or Moon
   // based on the actual theme (which may differ due to localStorage / system preference).
   useEffect(() => {
-    setMounted(true);
+    setMounted(true); // eslint-disable-line react-hooks/set-state-in-effect -- intentional mount detection, fires once
   }, []);
 
   return (

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from src.repositories.interfaces import IGpuRepository
+from src.utils.gpu_name import token_overlap_score
 
 
 class JsonGpuRepository(IGpuRepository):
@@ -40,12 +41,13 @@ class JsonGpuRepository(IGpuRepository):
         return None
 
     def find_closest_match(self, gpu_name: str) -> dict | None:
-        """Find closest GPU by substring matching.
+        """Find closest GPU by multi-strategy matching.
 
         Strategy (in priority order):
         1. Exact name match (case-insensitive)
         2. Substring match (gpu_name contains db name or vice versa)
-        3. Return None if no match found
+        3. Token-overlap match (model number + GPU family tokens)
+        4. Return None if no match found
         """
         if not gpu_name:
             return None
@@ -73,6 +75,19 @@ class JsonGpuRepository(IGpuRepository):
 
         if best_match:
             return dict(best_match)
+
+        # Step 3: Token-overlap match (handles synonym mismatches
+        # like "Laptop GPU" vs "Mobile" that survive normalization)
+        best_token_match = None
+        best_token_score = 0.0
+        for gpu in self._gpus:
+            score = token_overlap_score(name_lower, gpu["name"])
+            if score > best_token_score:
+                best_token_score = score
+                best_token_match = gpu
+
+        if best_token_match and best_token_score >= 0.5:
+            return dict(best_token_match)
 
         return None
 

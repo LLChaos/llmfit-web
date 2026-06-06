@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
@@ -28,8 +29,34 @@ async function fetchGpu(slug: string): Promise<GpuDetail | null> {
     });
     if (!res.ok) return null;
     const json = await res.json();
-    if (json.success && json.data) return json.data;
-    return null;
+    if (!json.success || !json.data) return null;
+
+    const raw = json.data as Record<string, unknown>;
+    // Convert snake_case API response to camelCase matching GpuDetail type
+    return {
+      id: raw.id as string,
+      name: raw.name as string,
+      vendor: raw.vendor as string,
+      vramGb: (raw.vram_gb as number) ?? 0,
+      tier: raw.tier as string,
+      benchmarkScore: raw.benchmark_score as number | undefined,
+      flopsTflops: raw.flops_tflops as number | undefined,
+      memoryBandwidthGbS: raw.memory_bandwidth_gb_s as number | undefined,
+      compatibleModels: (raw.compatible_models as Array<Record<string, unknown>>)?.map(
+        (m) => ({
+          id: m.id as string,
+          family: m.family as string,
+          name: m.name as string,
+          parameterCountB: m.parameter_count_b as number,
+          quantization: m.quantization as string,
+          quantizationBits: m.quantization_bits as number,
+          minVramGb: m.min_vram_gb as number,
+          recommendedVramGb: m.recommended_vram_gb as number,
+          contextLength: m.context_length as number,
+          qualityScore: m.quality_score as number,
+        }),
+      ) ?? [],
+    };
   } catch {
     return null;
   }
@@ -157,9 +184,9 @@ export default async function GpuDetailPage({ params }: Props) {
             {gpu.compatibleModels.length > 12 && (
               <p className="mt-4 text-sm text-muted-foreground">
                 + {gpu.compatibleModels.length - 12} more models. Check the{" "}
-                <a href="/models" className="text-primary hover:underline">
+                <Link href="/models" className="text-primary hover:underline">
                   Model Library
-                </a>{" "}
+                </Link>{" "}
                 for the complete list.
               </p>
             )}

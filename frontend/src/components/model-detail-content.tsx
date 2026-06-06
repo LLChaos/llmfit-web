@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation, type TranslationKey } from "@/hooks/use-translation";
+import { useTranslation } from "@/hooks/use-translation";
 import { useLocaleStore } from "@/stores/locale-store";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
@@ -74,7 +74,7 @@ export function ModelDetailContent({ model }: ModelDetailContentProps) {
       />
 
       <div className="space-y-10">
-        <SpecTable rows={specRows} />
+        <SpecTable rows={specRows} title={t("model_detail.specifications")} />
         <ProsConsList pros={pros} cons={cons} />
 
         <section className="flex flex-wrap gap-3">
