@@ -36,15 +36,21 @@ _async_engine: AsyncEngine | None = None
 AsyncSessionLocal: async_sessionmaker[AsyncSession] | None = None
 
 if settings.database_url:
-    _async_engine = create_async_engine(
-        settings.database_url,
-        echo=settings.debug,
-        pool_size=5,
-        max_overflow=10,
-    )
-    AsyncSessionLocal = async_sessionmaker(
-        bind=_async_engine, expire_on_commit=False
-    )
+    try:
+        _async_engine = create_async_engine(
+            settings.database_url,
+            echo=settings.debug,
+            pool_size=5,
+            max_overflow=10,
+        )
+        AsyncSessionLocal = async_sessionmaker(
+            bind=_async_engine, expire_on_commit=False
+        )
+    except Exception:
+        logger.warning(
+            "Async engine unavailable (missing asyncpg or similar). "
+            "Sync engine is sufficient for all current operations."
+        )
 
 
 def get_sync_engine() -> Engine | None:
