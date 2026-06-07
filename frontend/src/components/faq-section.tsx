@@ -11,17 +11,16 @@ interface FaqItem {
 
 interface FAQSectionProps {
   items: FaqItem[];
+  title?: string;
   className?: string;
 }
 
-export function FAQSection({ items, className }: FAQSectionProps) {
+export function FAQSection({ items, title = "FAQ", className }: FAQSectionProps) {
   if (items.length === 0) return null;
 
   return (
     <section className={className}>
-      <h2 className="text-xl font-semibold mb-4">
-        FAQ.
-      </h2>
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
       <div className="space-y-2">
         {items.map((item, i) => (
           <FaqAccordion key={i} question={item.question} answer={item.answer} />

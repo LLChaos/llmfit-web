@@ -214,160 +214,236 @@ export function generateModelFaqs(model: ModelData, locale: Locale = "zh"): Arra
 
 // ── GPU content generators ──
 
-export function generateGpuDescription(gpu: GpuData): string {
-  const tierLabel =
-    gpu.tier === "enthusiast"
-      ? "flagship enthusiast-grade"
-      : gpu.tier === "high"
-        ? "high-performance"
-        : gpu.tier === "mid"
-          ? "mid-range"
-          : "entry-level";
+export function generateGpuDescription(gpu: GpuData, locale: Locale = "zh"): string {
+  const isZh = locale === "zh";
+
+  const tierLabel = isZh
+    ? (gpu.tier === "enthusiast" ? "旗舰级" : gpu.tier === "high" ? "高性能" : gpu.tier === "mid" ? "中端" : "入门级")
+    : (gpu.tier === "enthusiast" ? "flagship enthusiast-grade" : gpu.tier === "high" ? "high-performance" : gpu.tier === "mid" ? "mid-range" : "entry-level");
 
   const vendorLabel =
-    gpu.vendor === "nvidia"
-      ? "NVIDIA"
-      : gpu.vendor === "amd"
-        ? "AMD"
-        : gpu.vendor === "apple"
-          ? "Apple"
-          : gpu.vendor === "intel"
-            ? "Intel"
-            : gpu.vendor;
+    gpu.vendor === "nvidia" ? "NVIDIA"
+    : gpu.vendor === "amd" ? "AMD"
+    : gpu.vendor === "apple" ? "Apple"
+    : gpu.vendor === "intel" ? "Intel"
+    : gpu.vendor;
 
-  const vramLabel =
-    gpu.vramGb >= 24
+  const vramLabel = isZh
+    ? (gpu.vramGb >= 24
+      ? `拥有高达 ${gpu.vramGb} GB 的大容量显存，可以运行当前几乎所有开源大语言模型`
+      : gpu.vramGb >= 12
+        ? `配备 ${gpu.vramGb} GB 显存，足够运行大多数中大型开源模型`
+        : gpu.vramGb >= 8
+          ? `具备 ${gpu.vramGb} GB 显存，可运行紧凑型到中等规模的模型`
+          : `配备 ${gpu.vramGb} GB 显存，适合小型和高压缩量化的模型`)
+    : (gpu.vramGb >= 24
       ? `massive ${gpu.vramGb} GB of VRAM, making it capable of running even the largest open-source LLMs`
       : gpu.vramGb >= 12
         ? `${gpu.vramGb} GB of VRAM, sufficient for most mid-to-large open-source models`
         : gpu.vramGb >= 8
           ? `${gpu.vramGb} GB of VRAM, adequate for compact to mid-sized models`
-          : `${gpu.vramGb} GB of VRAM, suitable for small and heavily quantized models`;
+          : `${gpu.vramGb} GB of VRAM, suitable for small and heavily quantized models`);
 
-  const perfLabel =
-    gpu.flopsTflops != null
-      ? `It delivers ${gpu.flopsTflops} TFLOPS of FP32 compute performance`
-      : "";
+  const perfLabel = gpu.flopsTflops != null
+    ? (isZh
+      ? `它提供 ${gpu.flopsTflops} TFLOPS 的 FP32 计算性能`
+      : `It delivers ${gpu.flopsTflops} TFLOPS of FP32 compute performance`)
+    : "";
 
-  const bandwidthLabel =
-    gpu.memoryBandwidthGbS != null
-      ? `with ${gpu.memoryBandwidthGbS} GB/s of memory bandwidth`
-      : "";
+  const bandwidthLabel = gpu.memoryBandwidthGbS != null
+    ? (isZh
+      ? `，拥有 ${gpu.memoryBandwidthGbS} GB/s 的内存带宽`
+      : `with ${gpu.memoryBandwidthGbS} GB/s of memory bandwidth`)
+    : "";
 
   const compatCount = gpu.compatibleModels?.length ?? 0;
 
-  const compatLabel =
-    compatCount > 30
+  const compatLabel = isZh
+    ? (compatCount > 30
+      ? `此 GPU 可运行我们数据库中超过 ${compatCount} 个模型。`
+      : compatCount > 0
+        ? `可以运行数据库中 ${compatCount} 个模型。`
+        : "")
+    : (compatCount > 30
       ? `This GPU can run over ${compatCount} models in our database.`
       : compatCount > 0
         ? `It can run ${compatCount} models in our database.`
-        : "";
+        : "");
 
-  return [
-    `${gpu.name} is a ${tierLabel} GPU from ${vendorLabel}.`,
-    `It offers ${vramLabel}.`,
-    perfLabel,
-    bandwidthLabel,
-    compatLabel,
-    gpu.tier === "enthusiast"
+  const verdictLabel = isZh
+    ? (gpu.tier === "enthusiast"
+      ? "如果你认真对待本地 LLM 部署，这款 GPU 代表了消费级硬件的顶级水准。"
+      : gpu.tier === "high"
+        ? "对于希望在大模型上获得流畅性能的本地 LLM 爱好者来说，这是一个可靠的选择。"
+        : gpu.tier === "mid"
+          ? "对于预算有限但仍想运行本地模型的用户来说，这是性价比最佳的选择。"
+          : "这是尝试本地 LLM 的经济型入门选择。")
+    : (gpu.tier === "enthusiast"
       ? "If you're serious about local LLM deployment, this GPU represents the top tier of consumer hardware."
       : gpu.tier === "high"
         ? "It's a solid choice for local LLM enthusiasts who want smooth performance on larger models."
         : gpu.tier === "mid"
           ? "It's the sweet spot for budget-conscious users who still want to run capable local models."
-          : "It's a cost-effective entry point for experimenting with local LLMs.",
-  ]
-    .filter(Boolean)
-    .join(" ");
+          : "It's a cost-effective entry point for experimenting with local LLMs.");
+
+  return [
+    isZh
+      ? `${gpu.name} 是 ${vendorLabel} 推出的一款 ${tierLabel} GPU。`
+      : `${gpu.name} is a ${tierLabel} GPU from ${vendorLabel}.`,
+    isZh ? vramLabel : `It offers ${vramLabel}.`,
+    perfLabel,
+    bandwidthLabel,
+    compatLabel,
+    verdictLabel,
+  ].filter(Boolean).join(" ");
 }
 
-export function generateGpuProsCons(gpu: GpuData): {
+export function generateGpuProsCons(gpu: GpuData, locale: Locale = "zh"): {
   pros: string[];
   cons: string[];
 } {
   const pros: string[] = [];
   const cons: string[] = [];
+  const isZh = locale === "zh";
 
   // VRAM
   if (gpu.vramGb >= 24) {
-    pros.push(`${gpu.vramGb} GB VRAM — can run virtually all current open-source models`);
+    pros.push(isZh
+      ? `${gpu.vramGb} GB 显存 — 几乎可以运行当前所有开源模型`
+      : `${gpu.vramGb} GB VRAM — can run virtually all current open-source models`);
   } else if (gpu.vramGb >= 12) {
-    pros.push(`${gpu.vramGb} GB VRAM — good for most models up to ~30B parameters`);
+    pros.push(isZh
+      ? `${gpu.vramGb} GB 显存 — 适合大多数最高约 300 亿参数的模型`
+      : `${gpu.vramGb} GB VRAM — good for most models up to ~30B parameters`);
   } else if (gpu.vramGb >= 8) {
-    pros.push(`${gpu.vramGb} GB VRAM — suitable for compact and mid-sized models`);
+    pros.push(isZh
+      ? `${gpu.vramGb} GB 显存 — 适合小型到中等规模的模型`
+      : `${gpu.vramGb} GB VRAM — suitable for compact and mid-sized models`);
   } else {
-    cons.push(`${gpu.vramGb} GB VRAM — limited to small and heavily quantized models`);
+    cons.push(isZh
+      ? `${gpu.vramGb} GB 显存 — 仅限于小型和高压缩量化的模型`
+      : `${gpu.vramGb} GB VRAM — limited to small and heavily quantized models`);
   }
 
   // Performance
   if (gpu.flopsTflops != null) {
     if (gpu.flopsTflops >= 40) {
-      pros.push(`${gpu.flopsTflops} TFLOPS — exceptional compute for fast token generation`);
+      pros.push(isZh
+        ? `${gpu.flopsTflops} TFLOPS — 强大的计算性能，token 生成速度快`
+        : `${gpu.flopsTflops} TFLOPS — exceptional compute for fast token generation`);
     } else if (gpu.flopsTflops >= 15) {
-      pros.push(`${gpu.flopsTflops} TFLOPS — solid compute performance`);
+      pros.push(isZh
+        ? `${gpu.flopsTflops} TFLOPS — 稳健的计算性能`
+        : `${gpu.flopsTflops} TFLOPS — solid compute performance`);
     } else {
-      cons.push(`${gpu.flopsTflops} TFLOPS — modest compute may limit inference speed`);
+      cons.push(isZh
+        ? `${gpu.flopsTflops} TFLOPS — 有限的计算能力可能影响推理速度`
+        : `${gpu.flopsTflops} TFLOPS — modest compute may limit inference speed`);
     }
   }
 
   // Bandwidth
   if (gpu.memoryBandwidthGbS != null) {
     if (gpu.memoryBandwidthGbS >= 700) {
-      pros.push(`${gpu.memoryBandwidthGbS} GB/s bandwidth — excellent for large models`);
+      pros.push(isZh
+        ? `${gpu.memoryBandwidthGbS} GB/s 带宽 — 适合大模型推理`
+        : `${gpu.memoryBandwidthGbS} GB/s bandwidth — excellent for large models`);
     } else if (gpu.memoryBandwidthGbS >= 300) {
-      pros.push(`${gpu.memoryBandwidthGbS} GB/s bandwidth — good memory throughput`);
+      pros.push(isZh
+        ? `${gpu.memoryBandwidthGbS} GB/s 带宽 — 良好的内存吞吐`
+        : `${gpu.memoryBandwidthGbS} GB/s bandwidth — good memory throughput`);
     } else {
-      cons.push(
-        `${gpu.memoryBandwidthGbS} GB/s bandwidth — may bottleneck larger model inference`
-      );
+      cons.push(isZh
+        ? `${gpu.memoryBandwidthGbS} GB/s 带宽 — 可能成为大模型推理的瓶颈`
+        : `${gpu.memoryBandwidthGbS} GB/s bandwidth — may bottleneck larger model inference`);
     }
   }
 
   // Tier
   if (gpu.tier === "enthusiast") {
-    pros.push("Top-tier GPU — best-in-class for local AI workloads");
-    cons.push("High cost and power consumption — overkill for casual users");
+    pros.push(isZh
+      ? "顶级 GPU — 本地 AI 工作负载的最佳选择"
+      : "Top-tier GPU — best-in-class for local AI workloads");
+    cons.push(isZh
+      ? "高成本和高功耗 — 对普通用户来说可能过剩"
+      : "High cost and power consumption — overkill for casual users");
   } else if (gpu.tier === "entry") {
-    pros.push("Affordable entry point for trying local LLMs");
-    cons.push("Limited future-proofing — may struggle with next-generation models");
+    pros.push(isZh
+      ? "价格亲民的本地 LLM 入门选择"
+      : "Affordable entry point for trying local LLMs");
+    cons.push(isZh
+      ? "未来兼容性有限 — 可能难以应对下一代模型"
+      : "Limited future-proofing — may struggle with next-generation models");
   }
 
   // Vendor
   if (gpu.vendor === "apple") {
-    pros.push("Unified memory architecture — shared RAM/VRAM pool with CPU");
+    pros.push(isZh
+      ? "统一内存架构 — 与 CPU 共享 RAM/VRAM 池"
+      : "Unified memory architecture — shared RAM/VRAM pool with CPU");
   }
 
   return { pros, cons };
 }
 
-export function generateGpuFaqs(gpu: GpuData): Array<{
+export function generateGpuFaqs(gpu: GpuData, locale: Locale = "zh"): Array<{
   question: string;
   answer: string;
 }> {
+  const isZh = locale === "zh";
+
+  const tierLabel = isZh
+    ? (gpu.tier === "enthusiast" ? "旗舰级" : gpu.tier === "high" ? "高端" : gpu.tier === "mid" ? "中端" : "入门级")
+    : gpu.tier;
+
   const faqs: Array<{ question: string; answer: string }> = [
     {
-      question: `What LLM models can I run on ${gpu.name}?`,
-      answer: `With ${gpu.vramGb} GB of VRAM, you can run models that require up to approximately ${gpu.vramGb * 0.9} GB of VRAM (leaving some headroom for context). This typically includes models up to ${Math.floor(gpu.vramGb * 1.5)}B parameters in Q4 quantization, or ${Math.floor(gpu.vramGb * 0.75)}B parameters in Q8. Check the compatible models list on this page for specific recommendations.`,
+      question: isZh
+        ? `在 ${gpu.name} 上可以运行哪些大语言模型？`
+        : `What LLM models can I run on ${gpu.name}?`,
+      answer: isZh
+        ? `凭借 ${gpu.vramGb} GB 显存，你可以运行需要约 ${(gpu.vramGb * 0.9).toFixed(0)} GB 显存的模型（为上下文处理留出余量）。通常包括 Q4 量化下最高约 ${Math.floor(gpu.vramGb * 1.5)}B 参数的模型，或 Q8 量化下约 ${Math.floor(gpu.vramGb * 0.75)}B 参数的模型。请参阅本页的兼容模型列表获取具体推荐。`
+        : `With ${gpu.vramGb} GB of VRAM, you can run models that require up to approximately ${(gpu.vramGb * 0.9).toFixed(0)} GB of VRAM (leaving some headroom for context). This typically includes models up to ${Math.floor(gpu.vramGb * 1.5)}B parameters in Q4 quantization, or ${Math.floor(gpu.vramGb * 0.75)}B parameters in Q8. Check the compatible models list on this page for specific recommendations.`,
     },
     {
-      question: `Is ${gpu.name} good for local LLM inference?`,
-      answer: `${gpu.name} is a ${gpu.tier}-tier GPU. ${
-        gpu.tier === "enthusiast"
-          ? "It's one of the best consumer GPUs for local LLM inference, capable of running large models with fast token generation speeds."
-          : gpu.tier === "high"
-            ? "It's a strong performer for local LLM inference, handling most models comfortably with good token generation speeds."
-            : gpu.tier === "mid"
-              ? "It provides a good balance of cost and capability for local LLM inference, suitable for hobbyists and developers."
-              : "It's adequate for getting started with local LLMs, though you may be limited to smaller or heavily quantized models."
-      }`,
+      question: isZh
+        ? `${gpu.name} 适合本地 LLM 推理吗？`
+        : `Is ${gpu.name} good for local LLM inference?`,
+      answer: isZh
+        ? `${gpu.name} 是一款 ${tierLabel} GPU。${
+            gpu.tier === "enthusiast"
+              ? "它是消费级 GPU 中本地 LLM 推理的顶级选择之一，能够快速运行大模型。"
+              : gpu.tier === "high"
+                ? "它在本地 LLM 推理方面表现出色，可以舒适地处理大多数模型，并有良好的 token 生成速度。"
+                : gpu.tier === "mid"
+                  ? "它在成本和能力之间提供了良好的平衡，适合爱好者和开发者进行本地 LLM 推理。"
+                  : "它足以让你入门本地 LLM，但可能局限于小型或高压缩量化的模型。"
+          }`
+        : `${gpu.name} is a ${gpu.tier}-tier GPU. ${
+            gpu.tier === "enthusiast"
+              ? "It's one of the best consumer GPUs for local LLM inference, capable of running large models with fast token generation speeds."
+              : gpu.tier === "high"
+                ? "It's a strong performer for local LLM inference, handling most models comfortably with good token generation speeds."
+                : gpu.tier === "mid"
+                  ? "It provides a good balance of cost and capability for local LLM inference, suitable for hobbyists and developers."
+                  : "It's adequate for getting started with local LLMs, though you may be limited to smaller or heavily quantized models."
+          }`,
     },
     {
-      question: `Should I upgrade from ${gpu.name} for better LLM performance?`,
-      answer: gpu.tier === "enthusiast"
-        ? `You're already at the top tier. Unless you need more VRAM for extremely large models (70B+), ${gpu.name} should serve you well for the foreseeable future.`
-        : gpu.tier === "entry"
-          ? `If you're frequently hitting VRAM limits or finding inference speeds too slow, upgrading to a mid-range GPU with 12+ GB VRAM would be a significant improvement. Check our GPU Database for upgrade options.`
-          : `If you find yourself wanting to run larger models or need faster inference, consider moving up to the next performance tier. Each tier unlock adds more compatible models and better token generation speeds.`,
+      question: isZh
+        ? `我应该从 ${gpu.name} 升级以获得更好的 LLM 性能吗？`
+        : `Should I upgrade from ${gpu.name} for better LLM performance?`,
+      answer: isZh
+        ? (gpu.tier === "enthusiast"
+          ? `你已经在顶级了。除非你需要更多显存来运行超大模型（700 亿参数以上），否则 ${gpu.name} 在可预见的未来都能很好地满足你的需求。`
+          : gpu.tier === "entry"
+            ? `如果你经常遇到显存限制或觉得推理速度太慢，升级到 12GB 以上显存的中端 GPU 将是一个显著的提升。可以在我们的 GPU 数据库中查看升级选项。`
+            : `如果你想运行更大的模型或需要更快的推理速度，可以考虑升级到下一个性能级别。每次升级都会解锁更多兼容模型和更好的 token 生成速度。`)
+        : (gpu.tier === "enthusiast"
+          ? `You're already at the top tier. Unless you need more VRAM for extremely large models (70B+), ${gpu.name} should serve you well for the foreseeable future.`
+          : gpu.tier === "entry"
+            ? `If you're frequently hitting VRAM limits or finding inference speeds too slow, upgrading to a mid-range GPU with 12+ GB VRAM would be a significant improvement. Check our GPU Database for upgrade options.`
+            : `If you find yourself wanting to run larger models or need faster inference, consider moving up to the next performance tier. Each tier unlock adds more compatible models and better token generation speeds.`),
     },
   ];
 

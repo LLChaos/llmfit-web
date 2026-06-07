@@ -15,7 +15,7 @@ interface InternalLinksProps {
 }
 
 export function InternalLinks({
-  title = "See Also",
+  title = "Explore More",
   links,
   className,
 }: InternalLinksProps) {
