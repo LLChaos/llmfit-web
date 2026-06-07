@@ -13,6 +13,12 @@ venv/
 # Environment
 .env
 
+# Build output
+.next/
+
+# Superpowers
+.superpowers/
+
 # OS
 .DS_Store
 Thumbs.db
