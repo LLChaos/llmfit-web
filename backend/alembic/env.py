@@ -8,7 +8,7 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 from alembic import context
 
@@ -22,9 +22,6 @@ from src.models import Base  # noqa: E402
 # Alembic Config object
 config = context.config
 
-# Set the sync URL from application settings
-config.set_main_option("sqlalchemy.url", settings.sync_database_url)
-
 # Logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -32,10 +29,26 @@ if config.config_file_name is not None:
 # ORM metadata for autogenerate
 target_metadata = Base.metadata
 
+# Build sync URL directly (avoid configparser % interpolation issues)
+_sync_url = settings.sync_database_url
+if _sync_url:
+    # Escape % for configparser (but we bypass it now — kept for offline mode)
+    pass
+
+
+def _get_url() -> str:
+    """Return the sync database URL directly from settings."""
+    return settings.sync_database_url
+
+
+def _get_engine():
+    """Create a sync engine from settings (bypasses configparser)."""
+    return create_engine(settings.sync_database_url, poolclass=pool.NullPool)
+
 
 def run_migrations_offline() -> None:
     """Generate migration SQL without connecting to a database."""
-    url = config.get_main_option("sqlalchemy.url")
+    url = _get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -47,12 +60,8 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations against a live database."""
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    """Run migrations against a live database (engine built directly)."""
+    connectable = _get_engine()
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():
