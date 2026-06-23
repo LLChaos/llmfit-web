@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { HtmlLangSync } from "@/components/html-lang-sync";
+import { Analytics } from "@vercel/analytics/react";
 import { SITE_DEFAULT_TITLE, SITE_DEFAULT_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -80,6 +81,7 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
