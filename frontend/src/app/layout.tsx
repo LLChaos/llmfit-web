@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     url: SITE_URL,
-    locale: "zh_CN",
+    locale: "en_US",
   },
   twitter: {
     card: "summary",
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Inline script: prevent flash of wrong theme before JS hydrates */}
         <script
@@ -63,7 +63,7 @@ export default function RootLayout({
                 name: SITE_NAME,
                 url: SITE_URL,
                 description: SITE_DEFAULT_DESCRIPTION,
-                inLanguage: "zh-CN",
+                inLanguage: "en-US",
               },
               {
                 "@context": "https://schema.org",

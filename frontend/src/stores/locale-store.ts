@@ -14,7 +14,7 @@ interface LocaleState {
 export const useLocaleStore = create<LocaleState>()(
   persist(
     (set) => ({
-      locale: "zh",
+      locale: "en",
       _hasHydrated: false,
       setLocale: (locale: Locale) => set({ locale }),
     }),

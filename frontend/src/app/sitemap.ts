@@ -10,11 +10,12 @@ interface SlugItem {
 }
 
 async function fetchSlugs(
-  endpoint: string,
+  apiEndpoint: string,
+  urlPathBase: string,
   slugKey: 'id' | 'slug',
 ): Promise<MetadataRoute.Sitemap> {
   try {
-    const res = await fetch(`${API_BASE}${endpoint}`, {
+    const res = await fetch(`${API_BASE}${apiEndpoint}`, {
       next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
@@ -23,7 +24,7 @@ async function fetchSlugs(
     return items.map((item) => {
       const slug = slugKey === 'id' ? item.id : item.slug;
       return {
-        url: `${SITE_URL}${endpoint}/${encodeURIComponent(slug ?? '')}`,
+        url: `${SITE_URL}${urlPathBase}/${encodeURIComponent(slug ?? '')}`,
         lastModified: item.updated_at ? new Date(item.updated_at) : new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
@@ -53,9 +54,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic pages from API
   const [models, gpus, news] = await Promise.allSettled([
-    fetchSlugs('/models?size=200', 'id'),
-    fetchSlugs('/gpus?size=200', 'id'),
-    fetchSlugs('/news?size=100', 'slug'),
+    fetchSlugs('/models?size=200', '/models', 'id'),
+    fetchSlugs('/gpus?size=200', '/gpus', 'id'),
+    fetchSlugs('/news?size=100', '/news', 'slug'),
   ]);
 
   const dynamicPages: MetadataRoute.Sitemap = [
