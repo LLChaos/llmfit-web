@@ -33,6 +33,11 @@ export function constructMetadata({
     description,
     alternates: {
       canonical: url,
+      languages: {
+        en: url,
+        zh: url,
+        'x-default': url,
+      },
     },
     openGraph: {
       title,
