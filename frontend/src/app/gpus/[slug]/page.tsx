@@ -1,23 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { Breadcrumb } from "@/components/breadcrumb";
-import { PageHeader } from "@/components/page-header";
-import { SpecTable } from "@/components/spec-table";
-import { ProsConsList } from "@/components/pros-cons-list";
-import { FAQSection } from "@/components/faq-section";
-import { InternalLinks } from "@/components/internal-links";
-import { ModelCardLink } from "@/components/model-card-link";
+import { GpuDetailContent } from "@/components/gpu-detail-content";
 import { constructMetadata } from "@/lib/seo";
-import {
-  generateGpuDescription,
-  generateGpuProsCons,
-  generateGpuFaqs,
-} from "@/lib/content-generator";
 import type { GpuDetail } from "@/types/hardware";
 
-// Server-side i18n: import both dictionaries and pick by locale
+// Server-side i18n for metadata (must stay server-side — reads HTTP headers)
 import zhDict from "@/lib/i18n/zh.json";
 import enDict from "@/lib/i18n/en.json";
 
@@ -37,7 +25,6 @@ function t(locale: Locale, key: string, replacements?: Record<string, string>): 
   return value;
 }
 
-/** Detect locale from Accept-Language header. Defaults to "zh". */
 async function detectLocale(): Promise<Locale> {
   try {
     const h = await headers();
@@ -124,9 +111,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const tierText = tierLabels[gpu.tier] ?? gpu.tier;
 
-  const title = t(locale, "seo.gpu_detail_title", {
-    name: gpu.name,
-  });
+  const title = t(locale, "seo.gpu_detail_title", { name: gpu.name });
   const description = t(locale, "seo.gpu_detail_description", {
     name: gpu.name,
     vram: String(gpu.vramGb),
@@ -144,140 +129,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function GpuDetailPage({ params }: Props) {
   const { slug } = await params;
   const gpu = await fetchGpu(slug);
-  const locale = await detectLocale();
 
   if (!gpu) {
     notFound();
   }
 
-  const description = generateGpuDescription(gpu, locale);
-  const { pros, cons } = generateGpuProsCons(gpu, locale);
-  const faqs = generateGpuFaqs(gpu, locale);
-
-  const vendorLabel =
-    gpu.vendor === "nvidia" ? "NVIDIA"
-    : gpu.vendor === "amd" ? "AMD"
-    : gpu.vendor === "apple" ? "Apple"
-    : gpu.vendor === "intel" ? "Intel"
-    : gpu.vendor;
-
-  const tierLabels: Record<string, string> = {
-    entry: t(locale, "hardware.tier.entry"),
-    mid: t(locale, "hardware.tier.mid"),
-    high: t(locale, "hardware.tier.high"),
-    enthusiast: t(locale, "hardware.tier.enthusiast"),
-  };
-
-  const tierText = tierLabels[gpu.tier] ?? gpu.tier;
-
-  const specRows = [
-    { label: t(locale, "gpu_detail.vendor"), value: vendorLabel },
-    { label: t(locale, "gpu_detail.full_name"), value: gpu.name },
-    { label: t(locale, "gpu_detail.vram"), value: gpu.vramGb, unit: "GB" },
-    { label: t(locale, "gpu_detail.performance_tier"), value: tierText },
-    ...(gpu.benchmarkScore != null
-      ? [{ label: t(locale, "gpu_detail.benchmark_score"), value: gpu.benchmarkScore.toLocaleString() }]
-      : []),
-    ...(gpu.flopsTflops != null
-      ? [{ label: t(locale, "gpu_detail.fp32_compute"), value: gpu.flopsTflops, unit: "TFLOPS" }]
-      : []),
-    ...(gpu.memoryBandwidthGbS != null
-      ? [{
-          label: t(locale, "gpu_detail.memory_bandwidth"),
-          value: gpu.memoryBandwidthGbS,
-          unit: "GB/s",
-        }]
-      : []),
-    {
-      label: t(locale, "gpu_detail.compatible_models"),
-      value: gpu.compatibleModels?.length ?? 0,
-      hint: t(locale, "gpu_detail.compatible_models_hint"),
-    },
-  ];
-
-  const compatCount = gpu.compatibleModels?.length ?? 0;
-
-  return (
-    <article className="mx-auto max-w-3xl px-4 py-6">
-      <Breadcrumb
-        segments={[
-          { label: t(locale, "gpu_detail.breadcrumb_gpus"), href: "/gpus" },
-          { label: vendorLabel, href: `/gpus?vendor=${gpu.vendor}` },
-          { label: gpu.name },
-        ]}
-      />
-
-      <PageHeader
-        title={gpu.name}
-        description={description}
-        badge={`${vendorLabel} · ${tierText}`}
-      />
-
-      <div className="space-y-10">
-        {/* Specs table */}
-        <SpecTable rows={specRows} title={t(locale, "gpu_detail.specs_title")} />
-
-        {/* Pros & Cons */}
-        <ProsConsList
-          pros={pros}
-          cons={cons}
-          prosTitle={t(locale, "gpu_detail.strengths")}
-          consTitle={t(locale, "gpu_detail.limitations")}
-        />
-
-        {/* Compatible models */}
-        {gpu.compatibleModels && compatCount > 0 && (
-          <section>
-            <h2 className="text-xl font-semibold mb-4">
-              {t(locale, "gpu_detail.compatible_models_title")} ({compatCount})
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {gpu.compatibleModels.slice(0, 12).map((m) => (
-                <ModelCardLink
-                  key={m.id}
-                  id={m.id}
-                  name={m.name}
-                  family={m.family}
-                  parameterCountB={m.parameterCountB}
-                  quantization={m.quantization}
-                  recommendedVramGb={m.recommendedVramGb}
-                  contextLength={m.contextLength}
-                  qualityScore={m.qualityScore}
-                />
-              ))}
-            </div>
-            {compatCount > 12 && (
-              <p className="mt-4 text-sm text-muted-foreground">
-                {t(locale, "gpu_detail.more_models_prefix")}
-                {compatCount - 12}
-                {t(locale, "gpu_detail.more_models_suffix")}
-                {" "}
-                <Link href="/models" className="text-primary hover:underline">
-                  {t(locale, "gpu_detail.model_library")}
-                </Link>
-                {t(locale, "gpu_detail.complete_list")}
-              </p>
-            )}
-          </section>
-        )}
-
-        {/* FAQ */}
-        <FAQSection
-          items={faqs}
-          title={t(locale, "gpu_detail.faq_title")}
-        />
-
-        {/* Internal links */}
-        <InternalLinks
-          title={t(locale, "gpu_detail.explore_more")}
-          links={[
-            { href: "/gpus", label: t(locale, "gpu_detail.browse_all_gpus") },
-            { href: "/models", label: t(locale, "gpu_detail.browse_models") },
-            { href: "/tools/recommend", label: t(locale, "gpu_detail.check_hardware") },
-            { href: "/news", label: t(locale, "gpu_detail.read_guides") },
-          ]}
-        />
-      </div>
-    </article>
-  );
+  return <GpuDetailContent gpu={gpu} />;
 }
