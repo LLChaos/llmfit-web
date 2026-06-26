@@ -46,20 +46,8 @@ const nextConfig: NextConfig = {
     },
   ],
 
-  // ── Canonical domain: www → bare ──────────────────────────────────
-  redirects: async () => [
-    {
-      source: "/:path*",
-      has: [
-        {
-          type: "host",
-          value: "www.llmsfit.com",
-        },
-      ],
-      destination: "https://llmsfit.com/:path*",
-      permanent: true,
-    },
-  ],
+  // Domain canonicalization (www → bare) is handled at Vercel level:
+  // Project Settings → Domains → add www.llmsfit.com → redirect to llmsfit.com
 };
 
 export default nextConfig;
