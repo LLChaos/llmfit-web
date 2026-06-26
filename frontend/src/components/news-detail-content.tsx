@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { PageHeader } from "@/components/page-header";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { InternalLinks } from "@/components/internal-links";
+import { SITE_URL } from "@/lib/seo";
 import type { NewsPostDetail } from "@/types/news";
 
 function getCategoryKey(category: string): TranslationKey {
@@ -109,10 +110,25 @@ export function NewsDetailContent({ post }: NewsDetailContentProps) {
             "@type": "Article",
             headline: post.title,
             description: post.summary,
+            url: `${SITE_URL}/news/${post.slug}`,
             datePublished: post.publishedAt,
             dateModified: post.updatedAt,
             articleSection: categoryLabel,
             keywords: tags.join(", "),
+            author: {
+              "@type": "Organization",
+              name: "LLMFit Web",
+              url: SITE_URL,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "LLMFit Web",
+              url: SITE_URL,
+            },
+            ...(post.coverImageUrl
+              ? { image: post.coverImageUrl }
+              : {}),
+            inLanguage: locale === "zh" ? "zh-CN" : "en-US",
           }),
         }}
       />
